@@ -18,13 +18,19 @@ void Game::Initialize() {
     return;
   }
 
+  // setup w and h 
+  SDL_DisplayMode displayMode;
+  SDL_GetCurrentDisplayMode(0, &displayMode);
+  windowWidth = displayMode.w;
+  windowHeight = displayMode.h;
+
   window = SDL_CreateWindow(
     NULL,
     SDL_WINDOWPOS_CENTERED, 
     SDL_WINDOWPOS_CENTERED, 
-    800, 
-    600,
-    SDL_WINDOW_BORDERLESS
+    windowWidth, 
+    windowHeight,
+    SDL_WINDOW_ALWAYS_ON_TOP
    );
 
   if(!window) {
@@ -32,12 +38,19 @@ void Game::Initialize() {
     return;
   }
 
-  renderer = SDL_CreateRenderer(window, -1, 0);
+  // Create a 2D rendering context for a window.
+  renderer = SDL_CreateRenderer(
+    window,
+    -1,
+    SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
   if(!renderer) {
     std::cerr << "Error creating SDL renderer." << std::endl;
     return;
   }
+
+  // Change the video mode to REAL fullscreen
+  SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 
   isRunning = true;
 }
@@ -74,7 +87,14 @@ void Game::Update() {
 }
 
 void Game::Render() {
-  
+  // Select the color
+  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+  SDL_RenderClear(renderer);
+
+  // TODO: Render all game objects...
+
+  // 'Paint' the window
+  SDL_RenderPresent(renderer);
 }
 
 void Game::Destroy() {
