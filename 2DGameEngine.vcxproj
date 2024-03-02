@@ -76,7 +76,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\SDL2\include;C:\Users\gnomm\OneDrive\Desktop\development\2DGameEngine\libs;</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);C:\SDL2\lib\x86;C:\Users\gnomm\OneDrive\Desktop\development\2DGameEngine\libs\lua;</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);C:\SDL2\lib\x86;C:\Users\gnomm\OneDrive\Desktop\development\2d-game-engine\libs\lua;</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>

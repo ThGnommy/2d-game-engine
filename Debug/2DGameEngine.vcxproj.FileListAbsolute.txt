@@ -1,1 +1,2 @@
 C:\Users\gnomm\OneDrive\Desktop\development\2DGameEngine\Debug\2DGameEngine.exe
+C:\Users\gnomm\OneDrive\Desktop\development\2d-game-engine\Debug\2DGameEngine.exe
