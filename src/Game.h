@@ -2,23 +2,28 @@
 
 #include <SDL2/SDL.h>
 
-class Game {
-  private:
-    bool isRunning;
-    SDL_Window* window;
-    SDL_Renderer* renderer;
+static constexpr unsigned int FPS{60};
+static constexpr unsigned int MILLISECS_PER_FRAME{1000 / FPS};
 
-  public:
-    Game();
-    ~Game();
-    void Initialize(); 
-    void Run();
-    void Setup();
-    void ProcessInput();
-    void Update();
-    void Render();
-    void Destroy();
+class Game
+{
+private:
+  bool isRunning;
+  int millisecsPrevFrame{};
+  SDL_Window *window;
+  SDL_Renderer *renderer;
 
-    int windowWidth;
-    int windowHeight;
+public:
+  Game();
+  ~Game();
+  void Initialize();
+  void Run();
+  void Setup();
+  void ProcessInput();
+  void Update();
+  void Render();
+  void Destroy();
+
+  int windowWidth;
+  int windowHeight;
 };

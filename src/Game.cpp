@@ -6,6 +6,7 @@
 #include "SDL2/SDL_render.h"
 #include "SDL2/SDL_surface.h"
 #include <SDL2/SDL_image.h>
+#include <glm/glm.hpp>
 
 Game::Game()
 {
@@ -86,13 +87,30 @@ void Game::ProcessInput()
   }
 }
 
+glm::vec2 playerPos{};
+glm::vec2 playerVelocity{};
+
 void Game::Setup()
 {
   // TODO: Inizialize game objects...
+  playerPos = glm::vec2(10., 20.);
+  playerVelocity = glm::vec2(1., 0.);
 }
 
 void Game::Update()
 {
+  // If we are too fast, waste some time until we reach MILLISECS_PER_FRAME
+  const unsigned int timeToWait{millisecsPrevFrame - (SDL_GetTicks() - millisecsPrevFrame)};
+
+  if (timeToWait > 0 && timeToWait <= MILLISECS_PER_FRAME)
+  {
+    SDL_Delay(timeToWait);
+  }
+
+  millisecsPrevFrame = SDL_GetTicks();
+
+  playerPos += playerVelocity;
+
   // TODO: update game objects...
 }
 
@@ -101,18 +119,18 @@ void Game::Render()
   SDL_SetRenderDrawColor(renderer, 21, 21, 21, 255);
   SDL_RenderClear(renderer);
 
-  // TODO: Render all game objects...
-
-  // Draw a PNG texture
-
-  SDL_Surface* surface = IMG_Load("./assets/images/tank-tiger-right.png");
-  SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+  // Load a png texture
+  SDL_Surface *surface = IMG_Load("./assets/images/tank-tiger-right.png");
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
   SDL_FreeSurface(surface);
 
-  SDL_Rect dstRect = {200, 200, 32, 32};
-
-  SDL_DestroyTexture(texture);
+  SDL_Rect dstRect = {
+      static_cast<int>(playerPos.x),
+      static_cast<int>(playerPos.y),
+      32,
+      32};
   SDL_RenderCopy(renderer, texture, NULL, &dstRect);
+  SDL_DestroyTexture(texture);
 
   // 'Paint' the window
   SDL_RenderPresent(renderer);
