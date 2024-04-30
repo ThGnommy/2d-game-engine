@@ -94,22 +94,27 @@ void Game::Setup()
 {
   // TODO: Inizialize game objects...
   playerPos = glm::vec2(10., 20.);
-  playerVelocity = glm::vec2(1., 0.);
+  playerVelocity = glm::vec2(100., 0.);
 }
 
 void Game::Update()
 {
   // If we are too fast, waste some time until we reach MILLISECS_PER_FRAME
-  const unsigned int timeToWait{millisecsPrevFrame - (SDL_GetTicks() - millisecsPrevFrame)};
+  int timeToWait = MILLISECS_PER_FRAME - (SDL_GetTicks64() - millisecsPrevFrame);
+
 
   if (timeToWait > 0 && timeToWait <= MILLISECS_PER_FRAME)
   {
     SDL_Delay(timeToWait);
   }
 
-  millisecsPrevFrame = SDL_GetTicks();
+  double deltaTime = (SDL_GetTicks64() - millisecsPrevFrame) / 1000.0;
+  millisecsPrevFrame = SDL_GetTicks64();
 
-  playerPos += playerVelocity;
+  playerPos.x += playerVelocity.x * deltaTime;
+  playerPos.y += playerVelocity.y * deltaTime;
+
+  std::cout << SDL_GetTicks64() / 1000.f << std::endl;
 
   // TODO: update game objects...
 }
