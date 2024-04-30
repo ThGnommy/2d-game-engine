@@ -14,6 +14,7 @@ public:
     ~Logger();
 
     static void Log(const std::string& message);
+    static void Warn(const std::string& message);
     static void Err(const std::string& message);
 };
 
