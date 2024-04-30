@@ -7,15 +7,13 @@ static constexpr unsigned int MILLISECS_PER_FRAME{1000 / FPS};
 
 class Game
 {
-private:
-  bool isRunning;
-  int millisecsPrevFrame{};
-  SDL_Window *window;
-  SDL_Renderer *renderer;
-
 public:
   Game();
+  Game(const Game& other) = delete;
+  Game(const Game&& other) = delete;
+  Game &operator=(const Game other) = delete;
   ~Game();
+
   void Initialize();
   void Run();
   void Setup();
@@ -26,4 +24,10 @@ public:
 
   int windowWidth;
   int windowHeight;
+
+private:
+  bool isRunning;
+  int millisecsPrevFrame{};
+  SDL_Window *window;
+  SDL_Renderer *renderer;
 };
