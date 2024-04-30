@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GAME_H
+#define GAME_H
 
 #include <SDL2/SDL.h>
 
@@ -9,9 +10,11 @@ class Game
 {
 public:
   Game();
-  Game(const Game& other) = delete;
+  Game(Game& other) = delete;
   Game(const Game&& other) = delete;
-  Game &operator=(const Game other) = delete;
+  Game &operator=(Game&& other) = delete;
+  Game &operator=(const Game& other) = delete;
+
   ~Game();
 
   void Initialize();
@@ -31,3 +34,5 @@ private:
   SDL_Window *window;
   SDL_Renderer *renderer;
 };
+
+#endif
