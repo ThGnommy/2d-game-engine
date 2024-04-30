@@ -114,8 +114,6 @@ void Game::Update()
   playerPos.x += playerVelocity.x * deltaTime;
   playerPos.y += playerVelocity.y * deltaTime;
 
-  std::cout << SDL_GetTicks64() / 1000.f << std::endl;
-
   // TODO: update game objects...
 }
 
