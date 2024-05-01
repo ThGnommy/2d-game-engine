@@ -7,7 +7,7 @@
 #include "SDL2/SDL_surface.h"
 #include <SDL2/SDL_image.h>
 #include <glm/glm.hpp>
-#include "Logger.h" 
+#include "Logger.h"
 
 Game::Game()
 {
@@ -38,8 +38,8 @@ void Game::Initialize()
       NULL,
       SDL_WINDOWPOS_CENTERED,
       SDL_WINDOWPOS_CENTERED,
-      windowWidth,
-      windowHeight,
+      800,
+      600,
       SDL_WINDOW_ALWAYS_ON_TOP);
 
   if (!window)
@@ -61,7 +61,7 @@ void Game::Initialize()
   }
 
   // Change the video mode to REAL fullscreen
-  SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+  // SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 
   isRunning = true;
 }
@@ -102,7 +102,6 @@ void Game::Update()
 {
   // If we are too fast, waste some time until we reach MILLISECS_PER_FRAME
   int timeToWait = MILLISECS_PER_FRAME - (SDL_GetTicks64() - millisecsPrevFrame);
-
 
   if (timeToWait > 0 && timeToWait <= MILLISECS_PER_FRAME)
   {
