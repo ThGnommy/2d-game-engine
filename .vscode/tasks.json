@@ -19,6 +19,7 @@
         "-fansi-escape-codes",
         "-g",
         "${workspaceFolder}/src/*.cpp",
+        "${workspaceFolder}/src/**/*.cpp",
         "-o",
         "${workspaceFolder}/gameengine",
         "--debug"

@@ -7,7 +7,7 @@
 #include "SDL2/SDL_surface.h"
 #include <SDL2/SDL_image.h>
 #include <glm/glm.hpp>
-#include "Logger.h"
+#include "../Logger/Logger.h"
 
 Game::Game()
 {
