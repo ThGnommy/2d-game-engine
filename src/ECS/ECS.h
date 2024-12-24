@@ -40,7 +40,7 @@ class System {
         void AddEntity(Entity entity);
         void RemoveEntity(Entity entity);
         std::vector<Entity> GetEntities() const;
-        Signature& GetComponentSignature() const;
+        const Signature& GetComponentSignature() const;
 
         template <typename TComponent> void RequireComponent();
 
@@ -49,12 +49,11 @@ class System {
         std::vector<Entity> entities{};
 };
 
-template <typename T> 
+template <typename TComponent> 
 void System::RequireComponent() {
-    const auto componentId{Component<TComponent>::GetId();}
+    const auto componentId{Component<TComponent>::GetId()};
     componentSignature.set(componentId);
 }
-
 
 class Registry {};
 
