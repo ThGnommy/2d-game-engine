@@ -11,9 +11,23 @@ typedef std::bitset<MAX_COMPONENTS> Signature;
 class Entity {
     public:
 
-    bool operator==(const Entity& other) const {
-        return id == other.GetId();
-    }
+        bool operator==(const Entity& other) const {
+            return id == other.GetId();
+        }
+
+        bool operator!=(const Entity& other) const {
+            return id != other.GetId();
+        }
+
+        bool operator>(const Entity& other) const {
+            return id > other.GetId();
+        }
+
+        bool operator<(const Entity& other) const {
+            return id < other.GetId();
+        }
+
+        Entity& operator=(const Entity& other) = default;
 
         Entity(int id) : id(id) {};
 
@@ -60,6 +74,9 @@ void System::RequireComponent() {
     componentSignature.set(componentId);
 }
 
+/*
+@brief Entity manager.
+*/
 class Registry {};
 
 #endif
