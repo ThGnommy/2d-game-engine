@@ -3,6 +3,9 @@
 
 #include <bitset>
 #include <vector>
+#include <unordered_map>
+#include <typeindex>
+#include <set>
 
 constexpr unsigned int MAX_COMPONENTS = 32;
 
@@ -50,7 +53,7 @@ class Component : public IComponent {
             return id;
         }
 };
-
+ 
 class System {
     public:
         System() = default;
@@ -74,9 +77,36 @@ void System::RequireComponent() {
     componentSignature.set(componentId);
 }
 
+
+
+
+
+
+class IPool {
+
+//  -------->
+//  componentsPools
+//  -------------------------
+//  |   |   |   |   |   |   |   P   | 
+//  |---|---|---|---|---|---|   o   |
+//  |   |   |   |   |   |   |   o   |
+//  |---|---|---|---|---|---|   l   |
+//  |   |   |   |   |   |   |   *   V
+//  |---|---|---|---|---|---|        
+//  |   |   |   |   |   |   |   
+//  |---|---|---|---|---|---|   
+//  |   |   |   |   |   |   |  > Entity
+//  |---|---|---|---|---|---|   
+//  |   |   |   |   |   |   |  > Entity
+//  -------------------------
+
+public:
+    virtual ~IPool() {};
+};
+
 // This is a vector of components's entity.
 template <typename T>
-class Pool {
+class Pool : public IPool {
 private:
     std::vector<T> data{};
 
@@ -85,14 +115,14 @@ public:
         data.resize(size);
     }
 
-    ~Pool() = default;
+    virtual ~Pool() = default;
 
     bool isEmpty() const { 
         return data.empty(); 
     }
 
     int GetSize() const { 
-        return data.size(): 
+        return data.size();
     }
 
     void Resize(const int n) {
@@ -111,7 +141,7 @@ public:
         data[index] = object;
     }
 
-    T& Get(const unsigned int index) {
+    const T& Get(const unsigned int index) const {
         return static_cast<T&>(data[index]);
     }
 
@@ -123,16 +153,66 @@ public:
 /*
 @brief Entity manager.
 */
-class Registry {
+class EntityManager {
+
+public:
+    EntityManager() = default;
+
+    void Update();
+    Entity CreateEntity();
+
+    void AddEntityToSystem(Entity entity);
+
+    void DeleteEntity(Entity* entity);
+
+    template <typename T, typename ...TArgs>
+    void AddComponent(const Entity entity, TArgs&& ...args) {
+        const auto componentId{Component<T>::GetId()};
+        const auto entityId{entity.GetId()};
+
+        // Resize the vector if componentId is greater or equal the componentPools size 
+        if (componentId >= componentPools.size()) {
+            componentPools.resize(componentId + 1, nullptr);
+        }
+
+        if (!componentPools[componentId]) {
+            Pool<T>* newComponentPool = new Pool<T>();
+            componentPools[componentId] = newComponentPool;
+        }
+
+        // Gets the pool of component values for the component type
+        Pool<T>* componentPool{Pool<T>(componentPool[componentId])};
+
+        if (entityId >= componentPool->GetSize()) {
+            componentPool->resize(numEntities);
+        }
+
+        // Create a new component object of type T, 
+        // and forward the various paramenters to the constructor
+        T newComponent(std::forward<TArgs>(args)...);
+
+        // change the component signature of the entity and set the component id on 
+        // the bitset to 1
+        entityComponentSignatures[entityId].set(componentId);
+    }
+
 
 private:
     unsigned int numEntities{};
 
     // Each pool contains all the data for a certain component type.
-    std::vector<Pool*> componentsPools{};
+    // Vector index = component type id
+    // Pool index = entity id 
+    std::vector<IPool*> componentPools{};
 
+    // Vector of component signatures per entity, saying which component is turned "on" for a given entity
+    // Vector index = entity id
+    std::vector<Signature> entityComponentSignatures{};
 
+    std::unordered_map<std::type_index, System*> systems{};
 
+    std::set<Entity> entitiesToBeCreated{};
+    std::set<Entity> entitiesToBeKilled{};
 
 
 
