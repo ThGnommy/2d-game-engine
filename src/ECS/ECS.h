@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <typeindex>
 #include <set>
+#include <cassert>
 
 constexpr unsigned int MAX_COMPONENTS = 32;
 
@@ -76,11 +77,6 @@ void System::RequireComponent() {
     const auto componentId{Component<TComponent>::GetId()};
     componentSignature.set(componentId);
 }
-
-
-
-
-
 
 class IPool {
 
@@ -165,37 +161,17 @@ public:
 
     void DeleteEntity(Entity* entity);
 
+    /// @brief Create a new component.
+    /// @tparam T is the component type
+    /// @tparam TArgs are the arguments to pass for this component.
     template <typename T, typename ...TArgs>
-    void AddComponent(const Entity entity, TArgs&& ...args) {
-        const auto componentId{Component<T>::GetId()};
-        const auto entityId{entity.GetId()};
+    void AddComponent(const Entity entity, TArgs&& ...args);
+    
+    template <typename T> 
+    void RemoveComponent(const Entity entity);
 
-        // Resize the vector if componentId is greater or equal the componentPools size 
-        if (componentId >= componentPools.size()) {
-            componentPools.resize(componentId + 1, nullptr);
-        }
-
-        if (!componentPools[componentId]) {
-            Pool<T>* newComponentPool = new Pool<T>();
-            componentPools[componentId] = newComponentPool;
-        }
-
-        // Gets the pool of component values for the component type
-        Pool<T>* componentPool{Pool<T>(componentPool[componentId])};
-
-        if (entityId >= componentPool->GetSize()) {
-            componentPool->resize(numEntities);
-        }
-
-        // Create a new component object of type T, 
-        // and forward the various paramenters to the constructor
-        T newComponent(std::forward<TArgs>(args)...);
-
-        // change the component signature of the entity and set the component id on 
-        // the bitset to 1
-        entityComponentSignatures[entityId].set(componentId);
-    }
-
+    template <typename T>
+    bool HasComponent(Entity entity);
 
 private:
     unsigned int numEntities{};
@@ -213,13 +189,6 @@ private:
 
     std::set<Entity> entitiesToBeCreated{};
     std::set<Entity> entitiesToBeKilled{};
-
-
-
-
-
-
-
 };
 
 #endif

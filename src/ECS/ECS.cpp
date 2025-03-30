@@ -40,6 +40,51 @@ void EntityManager::DeleteEntity(Entity* entity) {
 
 }
 
-void EntityManager::Update() {
+template <typename T, typename ...TArgs>
+void EntityManager::AddComponent(const Entity entity, TArgs&& ...args) {
+    const auto componentId{Component<T>::GetId()};
+    const auto entityId{entity.GetId()};
 
+    // Increment the capacity for accomodate the new component id
+    if (componentId >= componentPools.size()) {
+        componentPools.resize(componentId + 1, nullptr);
+    }
+
+    assertm(!componentPools[componentId], "That index should be empty at this time");
+
+    if (!componentPools[componentId]) {
+        Pool<T>* newComponentPool = new Pool<T>();
+        componentPools[componentId] = newComponentPool;
+    }
+
+    // Gets the pool of component values for the component type
+    Pool<T>* componentPool{Pool<T>(componentPool[componentId])};
+
+    if (entityId >= componentPool->GetSize()) {
+        componentPool->resize(numEntities);
+    }
+
+    // Create a new component object of type T, 
+    // and forward the various paramenters to the constructor
+    T newComponent(std::forward<TArgs>(args)...);
+
+    componentPool->Set(entityId, newComponent);
+    // change the component signature of the entity and set the component id on 
+    // the bitset to 1
+    entityComponentSignatures[entityId].set(componentId);
+}
+
+template <typename T> 
+void EntityManager::RemoveComponent(const Entity entity) {
+    const auto componentId{Component<T>::GetId()};
+    const auto entityId{entity.GetId()};
+    entityComponentSignatures[entityId].set(componentId, false);
+}
+
+template <typename T>
+bool EntityManager::HasComponent(Entity entity) {
+    const auto componentId{Component<T>::GetId()};
+    const auto entityId{entity.GetId()};
+
+    return entityComponentSignatures[entityId].test(componentId);
 }
