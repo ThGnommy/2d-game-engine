@@ -104,6 +104,8 @@ public:
 template <typename T>
 class Pool : public IPool {
 private:
+    // data rapresents an array of components type T
+    // e.g TransformComponent
     std::vector<T> data{};
 
 public:
@@ -173,6 +175,13 @@ public:
     template <typename T>
     bool HasComponent(Entity entity);
 
+    // System management
+
+    template <typename TSystem, typename ...TArgs> void AddSystem(TArgs&& ...args);
+    template <typename TSystem> void RemoveSystem();
+    template <typename TSystem> bool HasSystem() const;
+    template <typename TSystem> TSystem& GetSystem() const;
+
 private:
     unsigned int numEntities{};
 
@@ -185,6 +194,8 @@ private:
     // Vector index = entity id
     std::vector<Signature> entityComponentSignatures{};
 
+    // Map of active systems
+    // [Map key = system type_id]
     std::unordered_map<std::type_index, System*> systems{};
 
     std::set<Entity> entitiesToBeCreated{};

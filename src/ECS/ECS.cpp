@@ -1,6 +1,9 @@
 #include "ECS.h"
 #include "../Logger/Logger.h"
 
+
+int IComponent::nextId = 0;
+
 int Entity::GetId() const {
     return id;
 }
@@ -87,4 +90,20 @@ bool EntityManager::HasComponent(Entity entity) {
     const auto entityId{entity.GetId()};
 
     return entityComponentSignatures[entityId].test(componentId);
+}
+
+
+template <typename TSystem, typename ...TArgs> 
+void EntityManager::AddSystem(TArgs&& ...args) {
+
+    TSystem* newSystem{new TSystem(std::forward<TArgs>(args)...)}
+    std::type_index index{type_index(type_id(TSystem))};
+
+    systems.insert(std::make_pair(index, newSystem));
+}
+
+
+template <typename TSystem> 
+void EntityManager::RemoveSystem() {
+    systems.erase()
 }
