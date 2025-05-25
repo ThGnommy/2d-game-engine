@@ -1,6 +1,6 @@
 #include "ECS.h"
 #include "../Logger/Logger.h"
-
+#include "algorithm"
 
 int IComponent::nextId = 0;
 
@@ -96,8 +96,8 @@ bool EntityManager::HasComponent(Entity entity) {
 template <typename TSystem, typename ...TArgs> 
 void EntityManager::AddSystem(TArgs&& ...args) {
 
-    TSystem* newSystem{new TSystem(std::forward<TArgs>(args)...)}
-    std::type_index index{type_index(type_id(TSystem))};
+    TSystem* newSystem{new TSystem(std::forward<TArgs>(args)...)};
+    std::type_index index{std::type_index(typeid(TSystem))};
 
     systems.insert(std::make_pair(index, newSystem));
 }
@@ -105,5 +105,5 @@ void EntityManager::AddSystem(TArgs&& ...args) {
 
 template <typename TSystem> 
 void EntityManager::RemoveSystem() {
-    systems.erase()
+    // systems.erase()
 }
