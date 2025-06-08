@@ -12,6 +12,7 @@
 
 Game::Game() {
   isRunning = false;
+  entityManager = new EntityManager();
   Logger::Log("Game constructor called!");
 }
 
@@ -72,26 +73,23 @@ void Game::ProcessInput() {
 }
 
 void Game::Setup() {
-  /*
-    todo:
-
-    Entity tank = registry.CreateEntity();
-    tank.AddComponent<TranformComponent>();
-    tank.AddComponent<BoxColliderComponent>();
-    tank.AddComponent<SpriteComponent>("./assets/images/tank.png");
-  */
+    Entity tank = entityManager->CreateEntity();
+    Entity truck = entityManager->CreateEntity();
+    // tank.AddComponent<TranformComponent>();
+    // tank.AddComponent<BoxColliderComponent>();
+    // tank.AddComponent<SpriteComponent>("./assets/images/tank.png");
 }
 
 void Game::Update() {
   // If we are too fast, waste some time until we reach MILLISECS_PER_FRAME
-  int timeToWait =
+  const unsigned int timeToWait =
       MILLISECS_PER_FRAME - (SDL_GetTicks64() - millisecsPrevFrame);
 
   if (timeToWait > 0 && timeToWait <= MILLISECS_PER_FRAME) {
     SDL_Delay(timeToWait);
   }
 
-  double deltaTime = (SDL_GetTicks64() - millisecsPrevFrame) / 1000.0;
+  // double deltaTime = (SDL_GetTicks64() - millisecsPrevFrame) / 1000.0;
   millisecsPrevFrame = SDL_GetTicks64();
 
   // TODO: update game objects...

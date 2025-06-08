@@ -7,6 +7,8 @@
 #include <typeindex>
 #include <set>
 #include <cassert>
+#include <typeindex>
+#include <memory>
 
 constexpr unsigned int MAX_COMPONENTS = 32;
 
@@ -163,24 +165,85 @@ public:
 
     void DeleteEntity(Entity* entity);
 
-    /// @brief Create a new component.
-    /// @tparam T is the component type
-    /// @tparam TArgs are the arguments to pass for this component.
-    template <typename T, typename ...TArgs>
-    void AddComponent(const Entity entity, TArgs&& ...args);
-    
-    template <typename T> 
-    void RemoveComponent(const Entity entity);
 
-    template <typename T>
-    bool HasComponent(Entity entity);
+template <typename T, typename ...TArgs>
+void AddComponent(const Entity entity, TArgs&& ...args) {
+    const auto componentId{Component<T>::GetId()};
+    const auto entityId{entity.GetId()};
 
-    // System management
+    // Increment the capacity for accomodate the new component id
+    if (componentId >= componentPools.size()) {
+        componentPools.resize(componentId + 1, nullptr);
+    }
 
-    template <typename TSystem, typename ...TArgs> void AddSystem(TArgs&& ...args);
-    template <typename TSystem> void RemoveSystem();
-    template <typename TSystem> bool HasSystem() const;
-    template <typename TSystem> TSystem& GetSystem() const;
+    assertm(!componentPools[componentId], "That index should be empty at this time");
+
+    if (!componentPools[componentId]) {
+        Pool<T>* newComponentPool = new Pool<T>();
+        componentPools[componentId] = newComponentPool;
+    }
+
+    // Gets the pool of component values for the component type
+    Pool<T>* componentPool{Pool<T>(componentPool[componentId])};
+
+    if (entityId >= componentPool->GetSize()) {
+        componentPool->resize(numEntities);
+    }
+
+    // Create a new component object of type T, 
+    // and forward the various paramenters to the constructor
+    T newComponent(std::forward<TArgs>(args)...);
+
+    componentPool->Set(entityId, newComponent);
+    // change the component signature of the entity and set the component id on 
+    // the bitset to 1
+    entityComponentSignatures[entityId].set(componentId);
+}
+
+template <typename T> 
+void RemoveComponent(const Entity entity) {
+    const auto componentId{Component<T>::GetId()};
+    const auto entityId{entity.GetId()};
+    entityComponentSignatures[entityId].set(componentId, false);
+}
+
+template <typename T>
+bool HasComponent(Entity entity) {
+    const auto componentId{Component<T>::GetId()};
+    const auto entityId{entity.GetId()};
+
+    return entityComponentSignatures[entityId].test(componentId);
+}
+
+
+template <typename TSystem, typename ...TArgs> 
+void AddSystem(TArgs&& ...args) {
+
+    TSystem* newSystem{new TSystem(std::forward<TArgs>(args)...)};
+    std::type_index index{std::type_index(typeid(TSystem))};
+
+    systems.insert(std::make_pair(index, newSystem));
+}
+
+
+template <typename TSystem> 
+void RemoveSystem() {
+    const auto system{systems.find(std::type_index(typeid(TSystem)))};
+    systems.erase(system);
+}
+
+
+template <typename TSystem> 
+bool HasSystem() const {
+    const auto index{std::type_index(typeid(TSystem))};
+    return systems.find(index) != systems.end();
+}
+
+template <typename TSystem> TSystem& GetSystem() const {
+    auto system{systems.find(std::type_index(typeid(TSystem)))};
+    return *(std::static_pointer_cast<TSystem>(system->second));
+}
+
 
 private:
     unsigned int numEntities{};

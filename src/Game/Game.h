@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <SDL2/SDL.h>
+#include "../ECS/ECS.h" 
 
 static constexpr unsigned int FPS{60};
 static constexpr unsigned int MILLISECS_PER_FRAME{1000 / FPS};
@@ -33,6 +34,7 @@ private:
   int millisecsPrevFrame{};
   SDL_Window *window;
   SDL_Renderer *renderer;
+  EntityManager* entityManager{};
 };
 
 #endif
