@@ -179,12 +179,12 @@ void AddComponent(const Entity entity, TArgs&& ...args) {
     assertm(!componentPools[componentId], "That index should be empty at this time");
 
     if (!componentPools[componentId]) {
-        Pool<T>* newComponentPool = new Pool<T>();
+        std::shared_ptr<Pool<T>> newComponentPool = std::make_shared<Pool<T>>();
         componentPools[componentId] = newComponentPool;
     }
 
     // Gets the pool of component values for the component type
-    Pool<T>* componentPool{Pool<T>(componentPool[componentId])};
+    const auto* const componentPool{std::make_unique<Pool<T>>(componentPools[componentId])};
 
     if (entityId >= componentPool->GetSize()) {
         componentPool->resize(numEntities);
@@ -219,7 +219,7 @@ bool HasComponent(Entity entity) {
 template <typename TSystem, typename ...TArgs> 
 void AddSystem(TArgs&& ...args) {
 
-    TSystem* newSystem{new TSystem(std::forward<TArgs>(args)...)};
+    std::shared_ptr<TSystem> newSystem{std::make_shared<TSystem>(std::forward<TArgs>(args)...)};
     std::type_index index{std::type_index(typeid(TSystem))};
 
     systems.insert(std::make_pair(index, newSystem));
@@ -251,7 +251,7 @@ private:
     // Each pool contains all the data for a certain component type.
     // Vector index = component type id
     // Pool index = entity id 
-    std::vector<IPool*> componentPools{};
+    std::vector<std::shared_ptr<IPool>> componentPools{};
 
     // Vector of component signatures per entity, saying which component is turned "on" for a given entity
     // Vector index = entity id
@@ -259,7 +259,7 @@ private:
 
     // Map of active systems
     // [Map key = system type_id]
-    std::unordered_map<std::type_index, System*> systems{};
+    std::unordered_map<std::type_index, std::shared_ptr<System>> systems{};
 
     std::set<Entity> entitiesToBeCreated{};
     std::set<Entity> entitiesToBeKilled{};

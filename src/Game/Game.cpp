@@ -9,10 +9,11 @@
 #include <cstddef>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <memory>
 
 Game::Game() {
   isRunning = false;
-  entityManager = new EntityManager();
+  entityManager = std::make_unique<EntityManager>();
   Logger::Log("Game constructor called!");
 }
 
