@@ -10,6 +10,8 @@
 #include <glm/glm.hpp>
 #include <iostream>
 #include <memory>
+#include "../Components/TransformComponent.h"
+#include "../Components/RigidbodyComponent.h" 
 
 Game::Game() {
   isRunning = false;
@@ -75,10 +77,8 @@ void Game::ProcessInput() {
 
 void Game::Setup() {
     Entity tank = entityManager->CreateEntity();
-    Entity truck = entityManager->CreateEntity();
-    // tank.AddComponent<TranformComponent>();
-    // tank.AddComponent<BoxColliderComponent>();
-    // tank.AddComponent<SpriteComponent>("./assets/images/tank.png");
+    entityManager->AddComponent<TransformComponent>(tank, glm::vec2(100.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
+    entityManager->AddComponent<RigidbodyComponent>(tank, glm::vec2(30.0, 0.0));
 }
 
 void Game::Update() {

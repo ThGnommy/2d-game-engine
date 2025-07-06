@@ -10,6 +10,8 @@
 #include <typeindex>
 #include <memory>
 
+#define assertm(exp, msg) assert((void(msg), exp))
+
 constexpr unsigned int MAX_COMPONENTS = 32;
 
 typedef std::bitset<MAX_COMPONENTS> Signature;
@@ -184,10 +186,10 @@ void AddComponent(const Entity entity, TArgs&& ...args) {
     }
 
     // Gets the pool of component values for the component type
-    const auto* const componentPool{std::make_unique<Pool<T>>(componentPools[componentId])};
+        std::shared_ptr<Pool<T>> componentPool{std::static_pointer_cast<Pool<T>>(componentPools[componentId])};
 
     if (entityId >= componentPool->GetSize()) {
-        componentPool->resize(numEntities);
+        componentPool->Resize(numEntities);
     }
 
     // Create a new component object of type T, 
