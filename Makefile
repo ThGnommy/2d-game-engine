@@ -6,7 +6,7 @@ UNAME_S := $(shell uname -s)
 ########################################
 
 CC = g++
-COMPILER_FLAGS = -Wall -Wfatal-errors
+COMPILER_FLAGS = -Wall -Wfatal-errors -g
 LANG_STD = -std=c++17
 SRC_FILES = ./src/*.cpp ./src/**/*.cpp
 OBJ_NAME = gameengine
