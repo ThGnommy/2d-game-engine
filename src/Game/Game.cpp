@@ -1,5 +1,4 @@
 #include "Game.h"
-#include "../ECS/ECS.h"
 #include "../Logger/Logger.h"
 #include "SDL2/SDL_rect.h"
 #include "SDL2/SDL_render.h"
@@ -12,10 +11,10 @@
 #include <memory>
 #include "../Components/TransformComponent.h"
 #include "../Components/RigidbodyComponent.h" 
+#include "../ECS/Entity.h"
 
 Game::Game() {
   isRunning = false;
-  entityManager = std::make_unique<EntityManager>();
   Logger::Log("Game constructor called!");
 }
 
@@ -76,9 +75,9 @@ void Game::ProcessInput() {
 }
 
 void Game::Setup() {
-    Entity tank = entityManager->CreateEntity();
-    entityManager->AddComponent<TransformComponent>(tank, glm::vec2(100.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
-    entityManager->AddComponent<RigidbodyComponent>(tank, glm::vec2(30.0, 0.0));
+    Entity tank = EntityManager::Get().CreateEntity();
+    tank.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
+    tank.AddComponent<RigidbodyComponent>(glm::vec2(30.0, 0.0));
 }
 
 void Game::Update() {

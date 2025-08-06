@@ -1,26 +1,8 @@
-#include "ECS.h"
-#include "../Logger/Logger.h"
-#include "algorithm"
-#include <cassert>
+#include "EntityManager.h"
+#include "Entity.h"
+#include "Component.h"
 
 int IComponent::nextId = 0;
-
-int Entity::GetId() const { return id; }
-
-void System::AddEntity(Entity entity) { entities.emplace_back(entity); }
-
-void System::RemoveEntity(Entity entity) {
-  entities.erase(
-      std::remove_if(entities.begin(), entities.end(),
-                     [&entity](const Entity other) { return entity == other; }),
-      entities.end());
-}
-
-std::vector<Entity> System::GetEntities() const { return entities; }
-
-const Signature &System::GetComponentSignature() const {
-  return componentSignature;
-}
 
 Entity EntityManager::CreateEntity() {
 

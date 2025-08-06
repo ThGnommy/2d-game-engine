@@ -3,10 +3,11 @@
 
 #include <SDL2/SDL.h>
 #include <memory>
-#include "../ECS/ECS.h" 
 
 static constexpr unsigned int FPS{60};
 static constexpr unsigned int MILLISECS_PER_FRAME{1000 / FPS};
+
+class EntityManager;
 
 class Game
 {
@@ -35,7 +36,6 @@ private:
   int millisecsPrevFrame{};
   SDL_Window *window;
   SDL_Renderer *renderer;
-  std::unique_ptr<EntityManager> entityManager{};
 };
 
 #endif
