@@ -49,7 +49,7 @@ public:
 
   void Set(int index, T object) { data[index] = object; }
 
-  const T &Get(const unsigned int index) const {
+  T &Get(const unsigned int index) {
     return static_cast<T &>(data[index]);
   }
 
