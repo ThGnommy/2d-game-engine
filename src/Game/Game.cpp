@@ -78,6 +78,8 @@ void Game::Setup() {
     Entity tank = EntityManager::Get().CreateEntity();
     tank.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
     tank.AddComponent<RigidbodyComponent>(glm::vec2(30.0, 0.0));
+
+    tank.RemoveComponent<TransformComponent>();
 }
 
 void Game::Update() {
