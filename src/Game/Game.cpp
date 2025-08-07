@@ -83,7 +83,7 @@ void Game::Setup() {
   Entity tank = EntityManager::Get().CreateEntity();
   tank.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0),
                                         glm::vec2(1.0, 1.0), 0.0);
-  tank.AddComponent<RigidbodyComponent>(glm::vec2(30.0, 0.0));
+  tank.AddComponent<RigidbodyComponent>(glm::vec2(10.0, 0.0));
 }
 
 void Game::Update() {
@@ -95,13 +95,14 @@ void Game::Update() {
     SDL_Delay(timeToWait);
   }
 
-  // double deltaTime = (SDL_GetTicks64() - millisecsPrevFrame) / 1000.0;
+  const double deltaTime = (SDL_GetTicks64() - millisecsPrevFrame) / 1000.0;
+
   millisecsPrevFrame = SDL_GetTicks64();
 
   // TODO: update game objects...
 
   // Ask all the systems to update
-  _getEntityManager().GetSystem<MovementSystem>().Update();
+  _getEntityManager().GetSystem<MovementSystem>().Update(deltaTime);
 
   // Update the entity manager to process the entities that are waiting to be created/deleted
   _getEntityManager().Update();

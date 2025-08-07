@@ -15,15 +15,15 @@ class MovementSystem : public System {
         RequireComponent<RigidbodyComponent>();
     }
 
-    void Update() {
+    void Update(double deltaTime) {
         for (auto entity : GetEntities()) {
             // update entity pos based on its velocity
             // every frame of the game loop
             auto& transform{entity.GetComponent<TransformComponent>()};
             const auto rigidbody{entity.GetComponent<RigidbodyComponent>()};
 
-            transform.position.x += rigidbody.velocity.x;
-            transform.position.y += rigidbody.velocity.y;
+            transform.position.x += rigidbody.velocity.x * deltaTime;
+            transform.position.y += rigidbody.velocity.y * deltaTime;
 
             Logger::Log("Entity Movement: " + std::to_string(transform.position.x) + " : " + std::to_string(transform.position.y));
         }
