@@ -1,4 +1,8 @@
 #include "Game.h"
+#include "../Components/RigidbodyComponent.h"
+#include "../Components/TransformComponent.h"
+#include "../Systems/MovementSystem.h"
+#include "../ECS/Entity.h"
 #include "../Logger/Logger.h"
 #include "SDL2/SDL_rect.h"
 #include "SDL2/SDL_render.h"
@@ -9,9 +13,6 @@
 #include <glm/glm.hpp>
 #include <iostream>
 #include <memory>
-#include "../Components/TransformComponent.h"
-#include "../Components/RigidbodyComponent.h" 
-#include "../ECS/Entity.h"
 
 Game::Game() {
   isRunning = false;
@@ -75,11 +76,14 @@ void Game::ProcessInput() {
 }
 
 void Game::Setup() {
-    Entity tank = EntityManager::Get().CreateEntity();
-    tank.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
-    tank.AddComponent<RigidbodyComponent>(glm::vec2(30.0, 0.0));
 
-    tank.RemoveComponent<TransformComponent>();
+  // Add systems
+  EntityManager::Get().AddSystem<MovementSystem>();
+
+  Entity tank = EntityManager::Get().CreateEntity();
+  tank.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0),
+                                        glm::vec2(1.0, 1.0), 0.0);
+  tank.AddComponent<RigidbodyComponent>(glm::vec2(30.0, 0.0));
 }
 
 void Game::Update() {
@@ -96,8 +100,11 @@ void Game::Update() {
 
   // TODO: update game objects...
 
-  // MovementSystem.Update();
-  // ....
+  // Ask all the systems to update
+  _getEntityManager().GetSystem<MovementSystem>().Update();
+
+  // Update the entity manager to process the entities that are waiting to be created/deleted
+  _getEntityManager().Update();
 }
 
 void Game::Render() {
@@ -121,4 +128,8 @@ void Game::Destroy() {
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
+}
+
+EntityManager& Game::_getEntityManager() {
+  return EntityManager::Get();
 }

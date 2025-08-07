@@ -36,6 +36,8 @@ private:
   int millisecsPrevFrame{};
   SDL_Window *window;
   SDL_Renderer *renderer;
+
+  EntityManager& _getEntityManager();
 };
 
 #endif

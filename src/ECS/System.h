@@ -9,7 +9,7 @@ class Entity;
 class System {
 public:
   System() = default;
-  virtual ~System() = default;
+  ~System() = default;
 
   void AddEntity(Entity entity);
   void RemoveEntity(Entity entity);
