@@ -1,18 +1,16 @@
 #include "Game.h"
 #include "../Components/RigidbodyComponent.h"
 #include "../Components/TransformComponent.h"
+#include "../Components/SpriteComponent.h"
 #include "../Systems/MovementSystem.h"
+#include "../Systems/RenderSystem.h"
 #include "../ECS/Entity.h"
 #include "../Logger/Logger.h"
-#include "SDL2/SDL_rect.h"
 #include "SDL2/SDL_render.h"
-#include "SDL2/SDL_surface.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <cstddef>
 #include <glm/glm.hpp>
-#include <iostream>
-#include <memory>
 
 Game::Game() {
   isRunning = false;
@@ -79,11 +77,13 @@ void Game::Setup() {
 
   // Add systems
   EntityManager::Get().AddSystem<MovementSystem>();
+  EntityManager::Get().AddSystem<RenderSystem>();
 
   Entity tank = EntityManager::Get().CreateEntity();
   tank.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0),
                                         glm::vec2(1.0, 1.0), 0.0);
-  tank.AddComponent<RigidbodyComponent>(glm::vec2(10.0, 0.0));
+  tank.AddComponent<RigidbodyComponent>(glm::vec2(10.0, 10.0));
+  tank.AddComponent<SpriteComponent>(30, 30);
 }
 
 void Game::Update() {
@@ -109,7 +109,12 @@ void Game::Update() {
 }
 
 void Game::Render() {
-  // 'Paint' the window
+
+  SDL_SetRenderDrawColor(renderer, 21, 21, 21, 255);
+  SDL_RenderClear(renderer);
+
+  _getEntityManager().GetSystem<RenderSystem>().Update(renderer);
+
   SDL_RenderPresent(renderer);
 }
 

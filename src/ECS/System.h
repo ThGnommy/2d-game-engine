@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SYSYEM_H
+#define SYSYEM_H
 
 #include <vector>
 #include "Types.h"
@@ -27,3 +28,5 @@ template <typename TComponent> void System::RequireComponent() {
   const auto componentId{Component<TComponent>::GetId()};
   componentSignature.set(componentId);
 }
+
+#endif

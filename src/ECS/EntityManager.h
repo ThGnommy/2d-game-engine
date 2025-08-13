@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ENTITYMANAGER_H
+#define ENTITYMANAGER_H
 
 #include "../Logger/Logger.h"
 #include "IPool.h"
@@ -78,3 +79,5 @@ public:
 private:
   EntityManager() = default;
 };
+
+#endif

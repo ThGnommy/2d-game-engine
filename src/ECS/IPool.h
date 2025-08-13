@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IPOOL_H
+#define IPOOL_H
 
 #include "iostream"
 #include <vector>
@@ -55,3 +56,5 @@ public:
 
   T &operator[](unsigned int index) { return data[index]; }
 };
+
+#endif

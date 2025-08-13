@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ENTITY_H
+#define ENTITY_H
 
 #include "../Logger/Logger.h"
 #include "Component.h"
@@ -95,3 +96,5 @@ private:
   EntityManager &_getEntityManager() const;
   int id{};
 };
+
+#endif

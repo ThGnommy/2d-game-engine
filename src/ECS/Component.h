@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COMPONENT_H
+#define COMPONENT_H
 
 struct IComponent {
 protected:
@@ -12,3 +13,5 @@ public:
     return id;
   }
 };
+
+#endif
