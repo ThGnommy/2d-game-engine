@@ -81,11 +81,14 @@ void Game::Setup() {
   EntityManager::Get().AddSystem<MovementSystem>();
   EntityManager::Get().AddSystem<RenderSystem>();
 
+  // temp added texture
+  assetStore->AddTexture(renderer,"tank-panther-down", "./assets/images/tank-panther-down.png");
+
   Entity tank = EntityManager::Get().CreateEntity();
   tank.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0),
-                                        glm::vec2(1.0, 1.0), 0.0);
+                                        glm::vec2(3.0, 3.0), 45.0);
   tank.AddComponent<RigidbodyComponent>(glm::vec2(10.0, 10.0));
-  // tank.AddComponent<SpriteComponent>(30, 30);
+  tank.AddComponent<SpriteComponent>("tank-panther-down", 32, 32);
 }
 
 void Game::Update() {
@@ -116,7 +119,7 @@ void Game::Render() {
   SDL_SetRenderDrawColor(renderer, 21, 21, 21, 255);
   SDL_RenderClear(renderer);
 
-  _getEntityManager().GetSystem<RenderSystem>().Update(renderer);
+  _getEntityManager().GetSystem<RenderSystem>().Update(renderer, assetStore);
 
   SDL_RenderPresent(renderer);
 }

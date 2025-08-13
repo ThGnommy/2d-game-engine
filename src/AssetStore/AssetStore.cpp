@@ -27,7 +27,7 @@ void AssetStore::AddTexture(SDL_Renderer *renderer, const std::string &assetId,
 
   texturesMap.emplace(assetId, texture);
 
-  Logger::Log("New Texture added to the AssetStore with id: " + assetId);
+  Logger::Log("AssetStore: Texture added to the AssetStore with id: " + assetId + " and path " + path);
 }
 
 SDL_Texture *AssetStore::GetTexture(const std::string &assetId) const {
