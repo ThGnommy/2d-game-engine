@@ -1,19 +1,21 @@
 #include "Game.h"
 #include "../Components/RigidbodyComponent.h"
-#include "../Components/TransformComponent.h"
 #include "../Components/SpriteComponent.h"
-#include "../Systems/MovementSystem.h"
-#include "../Systems/RenderSystem.h"
+#include "../Components/TransformComponent.h"
 #include "../ECS/Entity.h"
 #include "../Logger/Logger.h"
+#include "../Systems/MovementSystem.h"
+#include "../Systems/RenderSystem.h"
 #include "SDL2/SDL_render.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <cstddef>
 #include <glm/glm.hpp>
+#include <memory>
 
 Game::Game() {
   isRunning = false;
+  assetStore = std::make_unique<AssetStore>();
   Logger::Log("Game constructor called!");
 }
 
@@ -83,7 +85,7 @@ void Game::Setup() {
   tank.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0),
                                         glm::vec2(1.0, 1.0), 0.0);
   tank.AddComponent<RigidbodyComponent>(glm::vec2(10.0, 10.0));
-  tank.AddComponent<SpriteComponent>(30, 30);
+  // tank.AddComponent<SpriteComponent>(30, 30);
 }
 
 void Game::Update() {
@@ -104,7 +106,8 @@ void Game::Update() {
   // Ask all the systems to update
   _getEntityManager().GetSystem<MovementSystem>().Update(deltaTime);
 
-  // Update the entity manager to process the entities that are waiting to be created/deleted
+  // Update the entity manager to process the entities that are waiting to be
+  // created/deleted
   _getEntityManager().Update();
 }
 
@@ -136,6 +139,4 @@ void Game::Destroy() {
   SDL_Quit();
 }
 
-EntityManager& Game::_getEntityManager() {
-  return EntityManager::Get();
-}
+EntityManager &Game::_getEntityManager() { return EntityManager::Get(); }

@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <memory>
+#include "../AssetStore/AssetStore.h"
 
 static constexpr unsigned int FPS{60};
 static constexpr unsigned int MILLISECS_PER_FRAME{1000 / FPS};
@@ -37,6 +38,7 @@ private:
   SDL_Window *window;
   SDL_Renderer *renderer;
 
+  std::unique_ptr<AssetStore> assetStore{};
   EntityManager& _getEntityManager();
 };
 
