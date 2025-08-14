@@ -38,8 +38,8 @@ public:
       _getEntityManager().componentPools.resize(componentId + 1, nullptr);
     }
 
-    assertm(!_getEntityManager().componentPools[componentId],
-            "That index should be empty at this time");
+    // assertm(!_getEntityManager().componentPools[componentId],
+    //         "That index should be empty at this time");
 
     if (!_getEntityManager().componentPools[componentId]) {
       std::shared_ptr<Pool<T>> newComponentPool = std::make_shared<Pool<T>>();

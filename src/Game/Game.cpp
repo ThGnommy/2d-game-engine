@@ -9,9 +9,16 @@
 #include "SDL2/SDL_render.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_rect.h>
+#include <SDL2/SDL_surface.h>
+#include <cctype>
 #include <cstddef>
+#include <fstream>
+#include <glm/ext/vector_float2.hpp>
 #include <glm/glm.hpp>
 #include <memory>
+#include <string>
+#include <vector>
 
 Game::Game() {
   isRunning = false;
@@ -35,7 +42,7 @@ void Game::Initialize() {
 
   window =
       SDL_CreateWindow(NULL, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                       800, 600, SDL_WINDOW_ALWAYS_ON_TOP);
+                       1024, 768, SDL_WINDOW_ALWAYS_ON_TOP);
 
   if (!window) {
     Logger::Err("Error creating SDL window.");
@@ -75,21 +82,90 @@ void Game::ProcessInput() {
   }
 }
 
-void Game::Setup() {
-
+void Game::LoadLevel(const int level) {
   // Add systems
   EntityManager::Get().AddSystem<MovementSystem>();
   EntityManager::Get().AddSystem<RenderSystem>();
 
   // temp added texture
-  assetStore->AddTexture(renderer,"tank-panther-down", "./assets/images/tank-panther-down.png");
+  assetStore->AddTexture(renderer, "tank-panther-down",
+                         "./assets/images/tank-panther-down.png");
 
   Entity tank = EntityManager::Get().CreateEntity();
   tank.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0),
                                         glm::vec2(3.0, 3.0), 45.0);
   tank.AddComponent<RigidbodyComponent>(glm::vec2(10.0, 10.0));
   tank.AddComponent<SpriteComponent>("tank-panther-down", 32, 32);
+
+  // TODO: Load the tilemap
+  assetStore->AddTexture(renderer, "jungle", "./assets/tilemaps/jungle.png");
+
+  std::vector<std::vector<int>> tileMatrix{};
+
+  std::string line;
+  std::ifstream mapFile;
+  mapFile.open("./assets/tilemaps/jungle.map");
+
+  int index = 0;
+
+  if (mapFile.is_open()) {
+    while (getline(mapFile, line)) {
+
+      std::string tile{};
+
+      tileMatrix.emplace_back(std::vector<int>{});
+
+      for (int i = 0; i < line.size(); i++) {
+        if (!std::isdigit(line[i])) {
+          tileMatrix[index].emplace_back(std::stoi(tile));
+          tile = "";
+          continue;
+        }
+
+        tile += line[i];
+      }
+
+      index++;
+    }
+
+    mapFile.close();
+  }
+
+  // Actually draw the tilemap
+  constexpr int tileSize{32};
+  constexpr double tileScale{2.0};
+
+  SDL_Surface *surface = IMG_Load("./assets/tilemaps/jungle.png");
+  const int tileWidth = surface->w;
+  SDL_FreeSurface(surface);
+
+  for (int i{0}; i < tileMatrix.size(); i++) {
+    for (int j{0}; j < tileMatrix[i].size(); j++) {
+
+      // How many row the tilemap image has
+      const int tilesPerRow = tileWidth / tileSize;
+
+      // The index of the current tile
+      const int tileIndex = tileMatrix[i][j];
+
+      // Find what row in the tilemap I have to look
+      const int row = floor(tileIndex / tilesPerRow);
+
+      const int srcX = (tileIndex - (row * tilesPerRow)) * tileSize;
+      const int srcY = row * tileSize;
+
+      Entity tile = EntityManager::Get().CreateEntity();
+
+      tile.AddComponent<TransformComponent>(
+          glm::vec2(((tileSize * tileScale) * j), ((tileSize * tileScale) * i)),
+          glm::vec2(tileScale, tileScale));
+      tile.AddComponent<SpriteComponent>("jungle", tileSize, tileSize, srcX,
+                                         srcY);
+    }
+  }
 }
+
+void Game::Setup() { LoadLevel(1); }
 
 void Game::Update() {
   // If we are too fast, waste some time until we reach MILLISECS_PER_FRAME
