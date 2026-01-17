@@ -10,9 +10,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
-#include <algorithm>
 #include <memory>
-#include <string>
 
 class RenderSystem : public System {
 public:

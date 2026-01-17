@@ -1,0 +1,114 @@
+[
+  {
+    "file": "./src/Main.cpp",
+    "arguments": [
+      "g++",
+      "-Wall",
+      "-Wfatal-errors",
+      "-g",
+      "-std=c++17",
+      "-I./libs/",
+      "./src/Main.cpp",
+      "-o",
+      "gameengine"
+    ],
+    "directory": "/home/thomas/development/2d-game-engine",
+    "output": "gameengine"
+  },
+  {
+    "file": "./src/AssetStore/AssetStore.cpp",
+    "arguments": [
+      "g++",
+      "-Wall",
+      "-Wfatal-errors",
+      "-g",
+      "-std=c++17",
+      "-I./libs/",
+      "./src/AssetStore/AssetStore.cpp",
+      "-o",
+      "gameengine"
+    ],
+    "directory": "/home/thomas/development/2d-game-engine",
+    "output": "gameengine"
+  },
+  {
+    "file": "./src/ECS/Entity.cpp",
+    "arguments": [
+      "g++",
+      "-Wall",
+      "-Wfatal-errors",
+      "-g",
+      "-std=c++17",
+      "-I./libs/",
+      "./src/ECS/Entity.cpp",
+      "-o",
+      "gameengine"
+    ],
+    "directory": "/home/thomas/development/2d-game-engine",
+    "output": "gameengine"
+  },
+  {
+    "file": "./src/ECS/EntityManager.cpp",
+    "arguments": [
+      "g++",
+      "-Wall",
+      "-Wfatal-errors",
+      "-g",
+      "-std=c++17",
+      "-I./libs/",
+      "./src/ECS/EntityManager.cpp",
+      "-o",
+      "gameengine"
+    ],
+    "directory": "/home/thomas/development/2d-game-engine",
+    "output": "gameengine"
+  },
+  {
+    "file": "./src/ECS/System.cpp",
+    "arguments": [
+      "g++",
+      "-Wall",
+      "-Wfatal-errors",
+      "-g",
+      "-std=c++17",
+      "-I./libs/",
+      "./src/ECS/System.cpp",
+      "-o",
+      "gameengine"
+    ],
+    "directory": "/home/thomas/development/2d-game-engine",
+    "output": "gameengine"
+  },
+  {
+    "file": "./src/Game/Game.cpp",
+    "arguments": [
+      "g++",
+      "-Wall",
+      "-Wfatal-errors",
+      "-g",
+      "-std=c++17",
+      "-I./libs/",
+      "./src/Game/Game.cpp",
+      "-o",
+      "gameengine"
+    ],
+    "directory": "/home/thomas/development/2d-game-engine",
+    "output": "gameengine"
+  },
+  {
+    "file": "./src/Logger/Logger.cpp",
+    "arguments": [
+      "g++",
+      "-Wall",
+      "-Wfatal-errors",
+      "-g",
+      "-std=c++17",
+      "-I./libs/",
+      "./src/Logger/Logger.cpp",
+      "-o",
+      "gameengine"
+    ],
+    "directory": "/home/thomas/development/2d-game-engine",
+    "output": "gameengine"
+  }
+]
