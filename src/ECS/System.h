@@ -1,5 +1,5 @@
-#ifndef SYSYEM_H
-#define SYSYEM_H
+#ifndef SYSTEM_H
+#define SYSTEM_H
 
 #include <vector>
 #include "Types.h"
@@ -14,7 +14,7 @@ public:
 
   void AddEntity(Entity entity);
   void RemoveEntity(Entity entity);
-  std::vector<Entity> GetEntities() const;
+  const std::vector<Entity>& GetEntities() const;
   const Signature &GetComponentSignature() const;
 
   template <typename TComponent> void RequireComponent();

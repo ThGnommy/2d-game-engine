@@ -34,7 +34,7 @@ public:
     const auto entityId{GetId()};
 
     // Increment the capacity for accomodate the new component id
-    if (componentId >= _getEntityManager().componentPools.size()) {
+    if (static_cast<size_t>(componentId) >= _getEntityManager().componentPools.size()) {
       _getEntityManager().componentPools.resize(componentId + 1, nullptr);
     }
 

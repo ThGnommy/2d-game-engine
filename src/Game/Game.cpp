@@ -115,7 +115,7 @@ void Game::LoadLevel(const int level) {
 
       tileMatrix.emplace_back(std::vector<int>{});
 
-      for (int i = 0; i < line.size(); i++) {
+      for (size_t i = 0; i < line.size(); i++) {
         if (!std::isdigit(line[i])) {
           tileMatrix[index].emplace_back(std::stoi(tile));
           tile = "";
@@ -139,8 +139,8 @@ void Game::LoadLevel(const int level) {
   const int tileWidth = surface->w;
   SDL_FreeSurface(surface);
 
-  for (int i{0}; i < tileMatrix.size(); i++) {
-    for (int j{0}; j < tileMatrix[i].size(); j++) {
+  for (size_t i{0}; i < tileMatrix.size(); i++) {
+    for (size_t j{0}; j < tileMatrix[i].size(); j++) {
 
       // How many row the tilemap image has
       const int tilesPerRow = tileWidth / tileSize;

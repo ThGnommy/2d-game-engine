@@ -10,6 +10,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
+#include <algorithm>
 #include <memory>
 #include <string>
 
@@ -21,6 +22,9 @@ public:
   }
 
   void Update(SDL_Renderer *renderer, std::unique_ptr<AssetStore> &assetStore) {
+
+    // const auto sortedEntities{std::sort(GetEntities().begin(), GetEntities().end)};
+
     for (auto entity : GetEntities()) {
       const auto transform{entity.GetComponent<TransformComponent>()};
       const auto sprite{entity.GetComponent<SpriteComponent>()};
@@ -32,9 +36,11 @@ public:
                        static_cast<int>(sprite.width * transform.scale.x),
                        static_cast<int>(sprite.height * transform.scale.y)};
 
-      // in the future we would want to give the possibility to flip the texture from there
-      SDL_RenderCopyEx(renderer, assetStore->GetTexture(sprite.assetId), &srcRect,
-                     &dsrRect, transform.rotation, NULL, SDL_FLIP_NONE);
+      // in the future we would want to give the possibility to flip the texture
+      // from there
+      SDL_RenderCopyEx(renderer, assetStore->GetTexture(sprite.assetId),
+                       &srcRect, &dsrRect, transform.rotation, NULL,
+                       SDL_FLIP_NONE);
     }
   }
 };

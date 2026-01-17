@@ -1,5 +1,5 @@
-#ifndef TRANFORMCOMPONENT_H
-#define TRANFORMCOMPONENT_H
+#ifndef TRANSFORMCOMPONENT_H
+#define TRANSFORMCOMPONENT_H
 
 #include <glm/glm.hpp>
 
