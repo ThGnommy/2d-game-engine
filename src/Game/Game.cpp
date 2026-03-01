@@ -90,14 +90,8 @@ void Game::LoadLevel(const int level) {
   // temp added texture
   assetStore->AddTexture(renderer, "tank-panther-down",
                          "./assets/images/tank-panther-down.png");
+  assetStore->AddTexture(renderer, "chopper", "./assets/images/chopper.png");
 
-  Entity tank = EntityManager::Get().CreateEntity();
-  tank.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0),
-                                        glm::vec2(3.0, 3.0), 45.0);
-  tank.AddComponent<RigidbodyComponent>(glm::vec2(10.0, 10.0));
-  tank.AddComponent<SpriteComponent>("tank-panther-down", 32, 32);
-
-  // TODO: Load the tilemap
   assetStore->AddTexture(renderer, "jungle", "./assets/tilemaps/jungle.png");
 
   std::vector<std::vector<int>> tileMatrix{};
@@ -139,11 +133,11 @@ void Game::LoadLevel(const int level) {
   const int tileWidth = surface->w;
   SDL_FreeSurface(surface);
 
+  // How many row the tilemap image has
+  const int tilesPerRow = tileWidth / tileSize;
+
   for (size_t i{0}; i < tileMatrix.size(); i++) {
     for (size_t j{0}; j < tileMatrix[i].size(); j++) {
-
-      // How many row the tilemap image has
-      const int tilesPerRow = tileWidth / tileSize;
 
       // The index of the current tile
       const int tileIndex = tileMatrix[i][j];
@@ -159,10 +153,23 @@ void Game::LoadLevel(const int level) {
       tile.AddComponent<TransformComponent>(
           glm::vec2(((tileSize * tileScale) * j), ((tileSize * tileScale) * i)),
           glm::vec2(tileScale, tileScale));
-      tile.AddComponent<SpriteComponent>("jungle", tileSize, tileSize, srcX,
+      tile.AddComponent<SpriteComponent>("jungle", tileSize, tileSize, 0, srcX,
                                          srcY);
     }
   }
+
+  // create entities
+  Entity tank = EntityManager::Get().CreateEntity();
+  tank.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0),
+                                        glm::vec2(2.0, 2.0), 45.0);
+  tank.AddComponent<RigidbodyComponent>(glm::vec2(10.0, 10.0));
+  tank.AddComponent<SpriteComponent>("tank-panther-down", 32, 32, 5);
+
+  Entity chopper = EntityManager::Get().CreateEntity();
+  chopper.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0),
+                                           glm::vec2(2.0, 2.0), 0);
+  chopper.AddComponent<RigidbodyComponent>(glm::vec2(20.0, 10.0));
+  chopper.AddComponent<SpriteComponent>("chopper", 32, 32, 2);
 }
 
 void Game::Setup() { LoadLevel(1); }

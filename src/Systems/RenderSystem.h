@@ -10,7 +10,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
+#include <algorithm>
 #include <memory>
+#include <vector>
 
 class RenderSystem : public System {
 public:
@@ -21,11 +23,27 @@ public:
 
   void Update(SDL_Renderer *renderer, std::unique_ptr<AssetStore> &assetStore) {
 
-    // const auto sortedEntities{std::sort(GetEntities().begin(), GetEntities().end)};
+    struct RenderableEntity {
+      TransformComponent tc{};
+      SpriteComponent sc{};
+    };
 
-    for (auto entity : GetEntities()) {
-      const auto transform{entity.GetComponent<TransformComponent>()};
-      const auto sprite{entity.GetComponent<SpriteComponent>()};
+    std::vector<RenderableEntity> sortedEntities{};
+    for (const auto &entity : GetEntities()) {
+      RenderableEntity e{};
+      e.tc = entity.GetComponent<TransformComponent>();
+      e.sc = entity.GetComponent<SpriteComponent>();
+      sortedEntities.emplace_back(e);
+    }
+
+    std::sort(sortedEntities.begin(), sortedEntities.end(),
+              [](const RenderableEntity &a, const RenderableEntity &b) {
+                return a.sc.zIndex < b.sc.zIndex;
+              });
+
+    for (auto entity : sortedEntities) {
+      const auto transform{entity.tc};
+      const auto sprite{entity.sc};
 
       SDL_Rect srcRect{sprite.srcRect};
 
@@ -34,8 +52,8 @@ public:
                        static_cast<int>(sprite.width * transform.scale.x),
                        static_cast<int>(sprite.height * transform.scale.y)};
 
-      // in the future we would want to give the possibility to flip the texture
-      // from there
+      // in the future we would want to give the possibility to flip the
+      // texture from there
       SDL_RenderCopyEx(renderer, assetStore->GetTexture(sprite.assetId),
                        &srcRect, &dsrRect, transform.rotation, NULL,
                        SDL_FLIP_NONE);
