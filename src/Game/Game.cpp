@@ -2,10 +2,12 @@
 #include "../Components/RigidbodyComponent.h"
 #include "../Components/SpriteComponent.h"
 #include "../Components/TransformComponent.h"
+#include "../Components/AnimationComponent.h"
 #include "../ECS/Entity.h"
 #include "../Logger/Logger.h"
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderSystem.h"
+#include "../Systems/AnimationSystem.h"
 #include "SDL2/SDL_render.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -86,6 +88,7 @@ void Game::LoadLevel(const int level) {
   // Add systems
   EntityManager::Get().AddSystem<MovementSystem>();
   EntityManager::Get().AddSystem<RenderSystem>();
+  EntityManager::Get().AddSystem<AnimationSystem>();
 
   // temp added texture
   assetStore->AddTexture(renderer, "tank-panther-down",
@@ -170,6 +173,7 @@ void Game::LoadLevel(const int level) {
                                            glm::vec2(2.0, 2.0), 0);
   chopper.AddComponent<RigidbodyComponent>(glm::vec2(20.0, 10.0));
   chopper.AddComponent<SpriteComponent>("chopper", 32, 32, 2);
+  chopper.AddComponent<AnimationComponent>(2, 5, true);
 }
 
 void Game::Setup() { LoadLevel(1); }
@@ -191,6 +195,7 @@ void Game::Update() {
 
   // Ask all the systems to update
   _getEntityManager().GetSystem<MovementSystem>().Update(deltaTime);
+  _getEntityManager().GetSystem<AnimationSystem>().Update();
 
   // Update the entity manager to process the entities that are waiting to be
   // created/deleted

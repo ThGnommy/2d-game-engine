@@ -1,31 +1,29 @@
 #ifndef MOVEMENTSYSTEM_H
 #define MOVEMENTSYSTEM_H
 
-#include "../ECS/System.h"
-#include "../Components/TransformComponent.h"
 #include "../Components/RigidbodyComponent.h"
+#include "../Components/TransformComponent.h"
 #include "../ECS/Entity.h"
-#include <string>
-
+#include "../ECS/System.h"
 
 class MovementSystem : public System {
-  public:
-    MovementSystem() {
-        RequireComponent<TransformComponent>();
-        RequireComponent<RigidbodyComponent>();
-    }
+public:
+  MovementSystem() {
+    RequireComponent<TransformComponent>();
+    RequireComponent<RigidbodyComponent>();
+  }
 
-    void Update(double deltaTime) {
-        for (auto entity : GetEntities()) {
-            // update entity pos based on its velocity
-            // every frame of the game loop
-            auto& transform{entity.GetComponent<TransformComponent>()};
-            const auto rigidbody{entity.GetComponent<RigidbodyComponent>()};
+  void Update(double deltaTime) {
+    for (const auto &entity : GetEntities()) {
+      // update entity pos based on its velocity
+      // every frame of the game loop
+      auto &transform{entity.GetComponent<TransformComponent>()};
+      const auto rigidbody{entity.GetComponent<RigidbodyComponent>()};
 
-            transform.position.x += rigidbody.velocity.x * deltaTime;
-            transform.position.y += rigidbody.velocity.y * deltaTime;
-        }
+      transform.position.x += rigidbody.velocity.x * deltaTime;
+      transform.position.y += rigidbody.velocity.y * deltaTime;
     }
+  }
 };
 
 #endif
