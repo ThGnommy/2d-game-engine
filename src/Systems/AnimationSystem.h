@@ -8,6 +8,7 @@
 #include "../ECS/System.h"
 #include <SDL2/SDL_timer.h>
 #include <iostream>
+#include <string>
 
 class AnimationSystem : public System {
 public:
@@ -21,13 +22,15 @@ public:
       auto &sprite{entity.GetComponent<SpriteComponent>()};
       auto &animation{entity.GetComponent<AnimationComponent>()};
 
-      // TODO:
-      // change the current frame
-      // change the source rectangle - we have to assume the size (e.g 32px)
-      //
+      if (!animation.isLoop &&
+          animation.currentFrame == animation.numFrames - 1) {
+        return;
+      }
+
       animation.currentFrame = ((SDL_GetTicks() - animation.startTime) *
                                 animation.frameSpeedRate / 1000) %
                                animation.numFrames;
+
       sprite.srcRect.x = animation.currentFrame * sprite.width;
     }
   }

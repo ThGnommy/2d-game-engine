@@ -1,13 +1,13 @@
 #include "Game.h"
+#include "../Components/AnimationComponent.h"
 #include "../Components/RigidbodyComponent.h"
 #include "../Components/SpriteComponent.h"
 #include "../Components/TransformComponent.h"
-#include "../Components/AnimationComponent.h"
 #include "../ECS/Entity.h"
 #include "../Logger/Logger.h"
+#include "../Systems/AnimationSystem.h"
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderSystem.h"
-#include "../Systems/AnimationSystem.h"
 #include "SDL2/SDL_render.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -96,6 +96,7 @@ void Game::LoadLevel(const int level) {
   assetStore->AddTexture(renderer, "chopper", "./assets/images/chopper.png");
 
   assetStore->AddTexture(renderer, "jungle", "./assets/tilemaps/jungle.png");
+  assetStore->AddTexture(renderer, "radar", "./assets/images/radar.png");
 
   std::vector<std::vector<int>> tileMatrix{};
 
@@ -174,6 +175,12 @@ void Game::LoadLevel(const int level) {
   chopper.AddComponent<RigidbodyComponent>(glm::vec2(20.0, 10.0));
   chopper.AddComponent<SpriteComponent>("chopper", 32, 32, 2);
   chopper.AddComponent<AnimationComponent>(2, 5, true);
+
+  Entity radar = EntityManager::Get().CreateEntity();
+  radar.AddComponent<TransformComponent>(glm::vec2(200.0, 200.0),
+                                         glm::vec2(1.0, 1.0), 0);
+  radar.AddComponent<SpriteComponent>("radar", 64, 64, 2);
+  radar.AddComponent<AnimationComponent>(8, 3, true);
 }
 
 void Game::Setup() { LoadLevel(1); }
