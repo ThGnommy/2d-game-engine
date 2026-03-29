@@ -3,11 +3,13 @@
 #include "../Components/RigidbodyComponent.h"
 #include "../Components/SpriteComponent.h"
 #include "../Components/TransformComponent.h"
+#include "../Components/BoxColliderComponent.h"
 #include "../ECS/Entity.h"
 #include "../Logger/Logger.h"
 #include "../Systems/AnimationSystem.h"
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderSystem.h"
+#include "../Systems/CollisionSystem.h"
 #include "SDL2/SDL_render.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -89,6 +91,7 @@ void Game::LoadLevel(const int level) {
   EntityManager::Get().AddSystem<MovementSystem>();
   EntityManager::Get().AddSystem<RenderSystem>();
   EntityManager::Get().AddSystem<AnimationSystem>();
+  EntityManager::Get().AddSystem<CollisionSystem>();
 
   // temp added texture
   assetStore->AddTexture(renderer, "tank-panther-down",
@@ -165,16 +168,18 @@ void Game::LoadLevel(const int level) {
   // create entities
   Entity tank = EntityManager::Get().CreateEntity();
   tank.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0),
-                                        glm::vec2(2.0, 2.0), 45.0);
-  tank.AddComponent<RigidbodyComponent>(glm::vec2(10.0, 10.0));
+                                        glm::vec2(2.0, 2.0), 0.0);
+  tank.AddComponent<RigidbodyComponent>(glm::vec2(50.0, 0.0));
   tank.AddComponent<SpriteComponent>("tank-panther-down", 32, 32, 5);
+  tank.AddComponent<BoxColliderComponent>(32, 32);
 
   Entity chopper = EntityManager::Get().CreateEntity();
-  chopper.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0),
+  chopper.AddComponent<TransformComponent>(glm::vec2(500.0, 100.0),
                                            glm::vec2(2.0, 2.0), 0);
-  chopper.AddComponent<RigidbodyComponent>(glm::vec2(20.0, 10.0));
+  chopper.AddComponent<RigidbodyComponent>(glm::vec2(-50.0, 0.0));
   chopper.AddComponent<SpriteComponent>("chopper", 32, 32, 2);
   chopper.AddComponent<AnimationComponent>(2, 5, true);
+  chopper.AddComponent<BoxColliderComponent>(32, 32);
 
   Entity radar = EntityManager::Get().CreateEntity();
   radar.AddComponent<TransformComponent>(glm::vec2(200.0, 200.0),
@@ -203,6 +208,7 @@ void Game::Update() {
   // Ask all the systems to update
   _getEntityManager().GetSystem<MovementSystem>().Update(deltaTime);
   _getEntityManager().GetSystem<AnimationSystem>().Update();
+  _getEntityManager().GetSystem<CollisionSystem>().Update();
 
   // Update the entity manager to process the entities that are waiting to be
   // created/deleted
