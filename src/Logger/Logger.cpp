@@ -21,7 +21,7 @@ namespace {
 }
 
 void Logger::Log(const std::string& message) {
-    std::cout << greenColor << "INFO: [ " << getCurrentDayAndTimeToString() << " ] - " << message << noColor << '\n';
+    std::cout << noColor << "INFO: [ " << getCurrentDayAndTimeToString() << " ] - " << message << noColor << '\n';
 }
 
 void Logger::Warn(const std::string& message) {
