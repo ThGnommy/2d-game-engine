@@ -14,6 +14,7 @@
 #include "SDL2/SDL_render.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_surface.h>
 #include <cctype>
@@ -26,8 +27,9 @@
 #include <vector>
 
 Game::Game() {
-  isRunning = false;
-  assetStore = std::make_unique<AssetStore>();
+  _isRunning = false;
+  _debugMode = false;
+  _assetStore = std::make_unique<AssetStore>();
   Logger::Log("Game constructor called!");
 }
 
@@ -42,23 +44,23 @@ void Game::Initialize() {
   // setup w and h
   SDL_DisplayMode displayMode;
   SDL_GetCurrentDisplayMode(0, &displayMode);
-  windowWidth = displayMode.w;
-  windowHeight = displayMode.h;
+  WindowWidth = displayMode.w;
+  WindowHeight = displayMode.h;
 
-  window =
+  _window =
       SDL_CreateWindow(NULL, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                        1024, 768, SDL_WINDOW_ALWAYS_ON_TOP);
 
-  if (!window) {
+  if (!_window) {
     Logger::Err("Error creating SDL window.");
     return;
   }
 
   // Create a 2D rendering context for a window.
-  renderer = SDL_CreateRenderer(
-      window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+  _renderer = SDL_CreateRenderer(
+      _window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-  if (!renderer) {
+  if (!_renderer) {
     Logger::Err("Error creating SDL renderer.");
     return;
   }
@@ -66,7 +68,7 @@ void Game::Initialize() {
   // Change the video mode to REAL fullscreen
   // SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 
-  isRunning = true;
+  _isRunning = true;
 }
 
 void Game::ProcessInput() {
@@ -76,11 +78,14 @@ void Game::ProcessInput() {
   while (SDL_PollEvent(&sdlEvent)) {
     switch (sdlEvent.type) {
     case SDL_QUIT:
-      isRunning = false;
+      _isRunning = false;
       break;
     case SDL_KEYDOWN:
       if (sdlEvent.key.keysym.sym == SDLK_ESCAPE) {
-        isRunning = false;
+        _isRunning = false;
+      }
+      if (sdlEvent.key.keysym.sym == SDLK_d) {
+        _debugMode = !_debugMode;
       }
       break;
     }
@@ -96,12 +101,12 @@ void Game::LoadLevel(const int level) {
   EntityManager::Get().AddSystem<CollisionSystem>();
 
   // temp added texture
-  assetStore->AddTexture(renderer, "tank-panther-down",
-                         "./assets/images/tank-panther-down.png");
-  assetStore->AddTexture(renderer, "chopper", "./assets/images/chopper.png");
+  _assetStore->AddTexture(_renderer, "tank-panther-down",
+                          "./assets/images/tank-panther-down.png");
+  _assetStore->AddTexture(_renderer, "chopper", "./assets/images/chopper.png");
 
-  assetStore->AddTexture(renderer, "jungle", "./assets/tilemaps/jungle.png");
-  assetStore->AddTexture(renderer, "radar", "./assets/images/radar.png");
+  _assetStore->AddTexture(_renderer, "jungle", "./assets/tilemaps/jungle.png");
+  _assetStore->AddTexture(_renderer, "radar", "./assets/images/radar.png");
 
   std::vector<std::vector<int>> tileMatrix{};
 
@@ -218,13 +223,16 @@ void Game::Update() {
 
 void Game::Render() {
 
-  SDL_SetRenderDrawColor(renderer, 21, 21, 21, 255);
-  SDL_RenderClear(renderer);
+  SDL_SetRenderDrawColor(_renderer, 21, 21, 21, 255);
+  SDL_RenderClear(_renderer);
 
-  _getEntityManager().GetSystem<RenderSystem>().Update(renderer, assetStore);
-  _getEntityManager().GetSystem<RenderDebugSystem>().Update(renderer);
+  _getEntityManager().GetSystem<RenderSystem>().Update(_renderer, _assetStore);
 
-  SDL_RenderPresent(renderer);
+  if (_debugMode) {
+    _getEntityManager().GetSystem<RenderDebugSystem>().Update(_renderer);
+  }
+
+  SDL_RenderPresent(_renderer);
 }
 
 void Game::Run() {
@@ -232,7 +240,7 @@ void Game::Run() {
   Setup();
 
   // Game loop...
-  while (isRunning) {
+  while (_isRunning) {
     ProcessInput();
     Update();
     Render();
@@ -240,8 +248,8 @@ void Game::Run() {
 }
 
 void Game::Destroy() {
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
+  SDL_DestroyRenderer(_renderer);
+  SDL_DestroyWindow(_window);
   SDL_Quit();
 }
 

@@ -1,23 +1,22 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "../AssetStore/AssetStore.h"
 #include <SDL2/SDL.h>
 #include <memory>
-#include "../AssetStore/AssetStore.h"
 
 static constexpr unsigned int FPS{60};
 static constexpr unsigned int MILLISECS_PER_FRAME{1000 / FPS};
 
 class EntityManager;
 
-class Game
-{
+class Game {
 public:
   Game();
-  Game(Game& other) = delete;
-  Game(const Game&& other) = delete;
-  Game &operator=(Game&& other) = delete;
-  Game &operator=(const Game& other) = delete;
+  Game(Game &other) = delete;
+  Game(const Game &&other) = delete;
+  Game &operator=(Game &&other) = delete;
+  Game &operator=(const Game &other) = delete;
 
   ~Game();
 
@@ -31,17 +30,18 @@ public:
 
   void LoadLevel(int level);
 
-  int windowWidth;
-  int windowHeight;
+  int WindowWidth{};
+  int WindowHeight{};
 
 private:
-  bool isRunning;
+  bool _isRunning{};
+  bool _debugMode{};
   int millisecsPrevFrame{};
-  SDL_Window *window;
-  SDL_Renderer *renderer;
+  SDL_Window *_window{};
+  SDL_Renderer *_renderer{};
 
-  std::unique_ptr<AssetStore> assetStore{};
-  EntityManager& _getEntityManager();
+  std::unique_ptr<AssetStore> _assetStore{};
+  EntityManager &_getEntityManager();
 };
 
 #endif
