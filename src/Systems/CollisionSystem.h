@@ -17,23 +17,6 @@ public:
     RequireComponent<BoxColliderComponent>();
   }
 
-  void DebugCollisionRender(SDL_Renderer *renderer) {
-    const auto &entities{GetEntities()};
-
-    for (const auto &entity : entities) {
-      const auto info{_getColliderInfo(entity)};
-      const bool colliding{
-          entity.GetComponent<BoxColliderComponent>().GetIsColliding()};
-
-      SDL_SetRenderDrawColor(renderer, colliding ? 255 : 0, colliding ? 0 : 255,
-                             0, 255);
-      const SDL_Rect rect{static_cast<int>(info.x), static_cast<int>(info.y),
-                          static_cast<int>(info.collisionWidth),
-                          static_cast<int>(info.collisionHeight)};
-      SDL_RenderDrawRect(renderer, &rect);
-    }
-  }
-
   void Update() {
     const auto &entities{GetEntities()};
 

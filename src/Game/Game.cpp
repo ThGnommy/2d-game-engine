@@ -9,6 +9,7 @@
 #include "../Systems/AnimationSystem.h"
 #include "../Systems/CollisionSystem.h"
 #include "../Systems/MovementSystem.h"
+#include "../Systems/RenderDebugSystem.h"
 #include "../Systems/RenderSystem.h"
 #include "SDL2/SDL_render.h"
 #include <SDL2/SDL.h>
@@ -90,6 +91,7 @@ void Game::LoadLevel(const int level) {
   // Add systems
   EntityManager::Get().AddSystem<MovementSystem>();
   EntityManager::Get().AddSystem<RenderSystem>();
+  EntityManager::Get().AddSystem<RenderDebugSystem>();
   EntityManager::Get().AddSystem<AnimationSystem>();
   EntityManager::Get().AddSystem<CollisionSystem>();
 
@@ -209,7 +211,6 @@ void Game::Update() {
   _getEntityManager().GetSystem<MovementSystem>().Update(deltaTime);
   _getEntityManager().GetSystem<AnimationSystem>().Update();
   _getEntityManager().GetSystem<CollisionSystem>().Update();
-
   // Update the entity manager to process the entities that are waiting to be
   // created/deleted
   _getEntityManager().Update();
@@ -221,10 +222,7 @@ void Game::Render() {
   SDL_RenderClear(renderer);
 
   _getEntityManager().GetSystem<RenderSystem>().Update(renderer, assetStore);
-
-  // debug collision drawing logic
-  _getEntityManager().GetSystem<CollisionSystem>().DebugCollisionRender(
-      renderer);
+  _getEntityManager().GetSystem<RenderDebugSystem>().Update(renderer);
 
   SDL_RenderPresent(renderer);
 }

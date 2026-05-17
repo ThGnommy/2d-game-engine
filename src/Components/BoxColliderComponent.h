@@ -12,7 +12,7 @@ struct BoxColliderComponent {
   double height{};
   glm::vec2 offset{};
 
-  bool GetIsColliding() { return _isColliding; }
+  bool GetIsColliding() const { return _isColliding; }
   void SetIsColliding(bool value) {
     _isColliding = value;
   }
