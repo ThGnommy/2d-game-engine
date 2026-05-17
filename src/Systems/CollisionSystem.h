@@ -81,8 +81,8 @@ private:
     return {
         transformC.position.x + boxColliderC.offset.x,
         transformC.position.y + boxColliderC.offset.y,
-        boxColliderC.width,
-        boxColliderC.height,
+        boxColliderC.width * transformC.scale.x,
+        boxColliderC.height * transformC.scale.y,
     };
   }
 
