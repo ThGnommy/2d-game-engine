@@ -6,6 +6,7 @@
 #include "../Components/TransformComponent.h"
 #include "../ECS/Entity.h"
 #include "../ECS/System.h"
+#include <cstddef>
 
 class CollisionSystem : public System {
 public:
@@ -15,49 +16,54 @@ public:
   }
 
   void Update() {
-    for (int i{}; i < GetEntities().size(); i++) {
-      const auto &transformComponent{
-          GetEntities()[i].GetComponent<TransformComponent>()};
-      const auto &boxColliderComponent{
-          GetEntities()[i].GetComponent<BoxColliderComponent>()};
-      EntityInfo firstEntity{.x = transformComponent.position.x,
-                             .y = transformComponent.position.y,
-                             .collisionWidth = boxColliderComponent.width,
-                             .collisionHeight = boxColliderComponent.height};
+    const auto &entities{GetEntities()};
 
-      for (int j{i + 1}; j < GetEntities().size(); j++) {
-        const auto &transformComponent{
-            GetEntities()[j].GetComponent<TransformComponent>()};
-        const auto &boxColliderComponent{
-            GetEntities()[j].GetComponent<BoxColliderComponent>()};
-        EntityInfo secondEntity{.x = transformComponent.position.x,
-                                .y = transformComponent.position.y,
-                                .collisionWidth = boxColliderComponent.width,
-                                .collisionHeight = boxColliderComponent.height};
+    // Compare each pair of entities only once (j starts from i+1
+    // to avoid duplicate checks and self-collisions)
+    for (size_t i{}; i < entities.size(); i++) {
+      const auto entityA{_getColliderInfo(entities[i])};
 
-        // set the collision on both entities
-        const auto colliding{_aabb(firstEntity, secondEntity)};
-        GetEntities()[i].GetComponent<BoxColliderComponent>().SetIsColliding(
+      for (size_t j{i + 1}; j < entities.size(); j++) {
+        const auto entityB{_getColliderInfo(entities[j])};
+
+        // set the collision flag on both entities
+        const auto colliding{_aabb(entityA, entityB)};
+        entities[i].GetComponent<BoxColliderComponent>().SetIsColliding(
             colliding);
-        GetEntities()[j].GetComponent<BoxColliderComponent>().SetIsColliding(
+        entities[j].GetComponent<BoxColliderComponent>().SetIsColliding(
             colliding);
       }
     }
   }
 
 private:
-  struct EntityInfo {
+  struct ColliderInfo {
     float x{};
     float y{};
     int collisionWidth{};
     int collisionHeight{};
   };
 
-  bool _aabb(const EntityInfo &entity1, const EntityInfo &entity2) {
-    if (entity1.x < entity2.x + entity2.collisionWidth &&
-        entity1.x + entity1.collisionWidth > entity2.x &&
-        entity1.y < entity2.y + entity2.collisionHeight &&
-        entity1.y + entity1.collisionHeight > entity2.y) {
+  ColliderInfo _getColliderInfo(const Entity &entity) {
+    const auto &transformC{entity.GetComponent<TransformComponent>()};
+    const auto &boxColliderC{entity.GetComponent<BoxColliderComponent>()};
+
+    return {
+        transformC.position.x,
+        transformC.position.y,
+        boxColliderC.width,
+        boxColliderC.height,
+    };
+  }
+
+  // AABB (Axis-Aligned Bounding Box) collision detection:
+  // two rectangles overlap if and only if
+  // there is no separation on either axis (X and Y)
+  bool _aabb(const ColliderInfo &entityA, const ColliderInfo &entityB) {
+    if (entityA.x < entityB.x + entityB.collisionWidth &&
+        entityA.x + entityA.collisionWidth > entityB.x &&
+        entityA.y < entityB.y + entityB.collisionHeight &&
+        entityA.y + entityA.collisionHeight > entityB.y) {
       return true;
     }
 
