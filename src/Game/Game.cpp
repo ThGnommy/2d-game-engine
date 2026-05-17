@@ -1,15 +1,15 @@
 #include "Game.h"
 #include "../Components/AnimationComponent.h"
+#include "../Components/BoxColliderComponent.h"
 #include "../Components/RigidbodyComponent.h"
 #include "../Components/SpriteComponent.h"
 #include "../Components/TransformComponent.h"
-#include "../Components/BoxColliderComponent.h"
 #include "../ECS/Entity.h"
 #include "../Logger/Logger.h"
 #include "../Systems/AnimationSystem.h"
+#include "../Systems/CollisionSystem.h"
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderSystem.h"
-#include "../Systems/CollisionSystem.h"
 #include "SDL2/SDL_render.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -221,6 +221,10 @@ void Game::Render() {
   SDL_RenderClear(renderer);
 
   _getEntityManager().GetSystem<RenderSystem>().Update(renderer, assetStore);
+
+  // debug collision drawing logic
+  _getEntityManager().GetSystem<CollisionSystem>().DebugCollisionRender(
+      renderer);
 
   SDL_RenderPresent(renderer);
 }

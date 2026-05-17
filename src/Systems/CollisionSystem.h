@@ -6,13 +6,32 @@
 #include "../Components/TransformComponent.h"
 #include "../ECS/Entity.h"
 #include "../ECS/System.h"
+#include <SDL2/SDL.h>
 #include <cstddef>
+#include <string>
 
 class CollisionSystem : public System {
 public:
   CollisionSystem() {
     RequireComponent<TransformComponent>();
     RequireComponent<BoxColliderComponent>();
+  }
+
+  void DebugCollisionRender(SDL_Renderer *renderer) {
+    const auto &entities{GetEntities()};
+
+    for (const auto &entity : entities) {
+      const auto info{_getColliderInfo(entity)};
+      const bool colliding{
+          entity.GetComponent<BoxColliderComponent>().GetIsColliding()};
+
+      SDL_SetRenderDrawColor(renderer, colliding ? 255 : 0, colliding ? 0 : 255,
+                             0, 255);
+      const SDL_Rect rect{static_cast<int>(info.x), static_cast<int>(info.y),
+                          static_cast<int>(info.collisionWidth),
+                          static_cast<int>(info.collisionHeight)};
+      SDL_RenderDrawRect(renderer, &rect);
+    }
   }
 
   void Update() {
@@ -26,22 +45,33 @@ public:
       for (size_t j{i + 1}; j < entities.size(); j++) {
         const auto entityB{_getColliderInfo(entities[j])};
 
+        // avoid check the same entity
+        if (entities[i] == entities[j]) {
+          continue;
+        }
+
         // set the collision flag on both entities
         const auto colliding{_aabb(entityA, entityB)};
         entities[i].GetComponent<BoxColliderComponent>().SetIsColliding(
             colliding);
         entities[j].GetComponent<BoxColliderComponent>().SetIsColliding(
             colliding);
+
+        if (colliding) {
+          Logger::Warn(std::to_string(entities[i].GetId()) +
+                       " is colliding with " +
+                       std::to_string(entities[j].GetId()));
+        }
       }
     }
   }
 
 private:
   struct ColliderInfo {
-    float x{};
-    float y{};
-    int collisionWidth{};
-    int collisionHeight{};
+    double x{};
+    double y{};
+    double collisionWidth{};
+    double collisionHeight{};
   };
 
   ColliderInfo _getColliderInfo(const Entity &entity) {
@@ -49,8 +79,8 @@ private:
     const auto &boxColliderC{entity.GetComponent<BoxColliderComponent>()};
 
     return {
-        transformC.position.x,
-        transformC.position.y,
+        transformC.position.x + boxColliderC.offset.x,
+        transformC.position.y + boxColliderC.offset.y,
         boxColliderC.width,
         boxColliderC.height,
     };

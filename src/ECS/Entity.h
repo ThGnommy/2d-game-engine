@@ -34,12 +34,10 @@ public:
     const auto entityId{GetId()};
 
     // Increment the capacity for accomodate the new component id
-    if (static_cast<size_t>(componentId) >= _getEntityManager().componentPools.size()) {
+    if (static_cast<size_t>(componentId) >=
+        _getEntityManager().componentPools.size()) {
       _getEntityManager().componentPools.resize(componentId + 1, nullptr);
     }
-
-    // assertm(!_getEntityManager().componentPools[componentId],
-    //         "That index should be empty at this time");
 
     if (!_getEntityManager().componentPools[componentId]) {
       std::shared_ptr<Pool<T>> newComponentPool = std::make_shared<Pool<T>>();
@@ -70,7 +68,8 @@ public:
   template <typename T> void RemoveComponent() {
     const auto componentId{Component<T>::GetId()};
     const auto entityId{GetId()};
-    _getEntityManager().entityComponentSignatures[entityId].set(componentId, false);
+    _getEntityManager().entityComponentSignatures[entityId].set(componentId,
+                                                                false);
 
     Logger::Log("Component id = " + std::to_string(componentId) +
                 " was removed from entity id " + std::to_string(entityId));
