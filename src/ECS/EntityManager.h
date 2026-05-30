@@ -7,6 +7,7 @@
 #include "Types.h"
 #include <bitset>
 #include <cassert>
+#include <deque>
 #include <memory>
 #include <set>
 #include <string>
@@ -29,9 +30,10 @@ public:
   void Update();
   Entity CreateEntity();
 
-  void AddEntityToSystem(Entity entity);
+  void DestroyEntity(Entity entity);
 
-  void DeleteEntity(Entity *entity);
+  void AddEntityToSystem(Entity entity);
+  void RemoveEntityFromSystems(Entity entity);
 
   template <typename TSystem, typename... TArgs>
   void AddSystem(TArgs &&...args) {
@@ -78,6 +80,8 @@ public:
 
 private:
   EntityManager() = default;
+
+  std::deque<int> freeIds{};
 };
 
 #endif

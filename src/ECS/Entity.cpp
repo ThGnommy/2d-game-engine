@@ -3,6 +3,6 @@
 
 int Entity::GetId() const { return id; }
 
-EntityManager& Entity::_getEntityManager() const {
+EntityManager &Entity::_getEntityManager() const {
   return EntityManager::Get();
 }

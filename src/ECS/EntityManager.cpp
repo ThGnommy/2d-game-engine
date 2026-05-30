@@ -1,41 +1,57 @@
 #include "EntityManager.h"
-#include "Entity.h"
 #include "Component.h"
+#include "Entity.h"
 
 int IComponent::nextId = 0;
 
 Entity EntityManager::CreateEntity() {
+  unsigned int entityId{};
 
-  unsigned int entityId{numEntities++};
+  if (freeIds.empty()) {
+    entityId = numEntities++;
+    // Make sure the entityComponentSignatures vector can accomodate the new
+    // entity
+    if (entityId >= entityComponentSignatures.size()) {
+      entityComponentSignatures.resize(entityId + 1);
+    }
+  } else {
+    entityId = freeIds.front();
+    freeIds.pop_front();
+  }
 
   Entity entity(entityId);
 
   entitiesToBeCreated.insert(entity);
-
-  // Make sure the entityComponentSignatures vector can accomodate the new
-  // entity
-  if (entityId >= entityComponentSignatures.size()) {
-    entityComponentSignatures.resize(entityId + 1);
-  }
 
   Logger::Log("Entity created with id: " + std::to_string(entityId));
 
   return entity;
 }
 
+void EntityManager::DestroyEntity(Entity entity) {
+  entitiesToBeKilled.insert(entity);
+  Logger::Log("Entity: " + std::to_string(entity.GetId()) + " destroyed!");
+}
+
 void EntityManager::Update() {
   // Add the entities that are waiting to be created to the active Systems
 
-  if (!entitiesToBeCreated.empty()) {
-    for (const auto entity : entitiesToBeCreated) {
-      AddEntityToSystem(entity);
-    }
-
-    entitiesToBeCreated.clear();
+  for (const auto entity : entitiesToBeCreated) {
+    AddEntityToSystem(entity);
   }
-}
 
-void EntityManager::DeleteEntity(Entity *entity) {}
+  entitiesToBeCreated.clear();
+
+  for (auto &entity : entitiesToBeKilled) {
+    RemoveEntityFromSystems(entity);
+    entityComponentSignatures[entity.GetId()].reset();
+
+    // Make the entity id available to be reused
+    freeIds.push_back(entity.GetId());
+  }
+
+  entitiesToBeKilled.clear();
+}
 
 void EntityManager::AddEntityToSystem(Entity entity) {
   const auto entityId{entity.GetId()};
@@ -49,5 +65,11 @@ void EntityManager::AddEntityToSystem(Entity entity) {
     if (isInterested) {
       system.second->AddEntity(entity);
     }
+  }
+}
+
+void EntityManager::RemoveEntityFromSystems(Entity entity) {
+  for (const auto &system : systems) {
+    system.second->RemoveEntity(entity);
   }
 }

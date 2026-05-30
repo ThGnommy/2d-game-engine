@@ -193,6 +193,8 @@ void Game::LoadLevel(const int level) {
                                          glm::vec2(1.0, 1.0), 0);
   radar.AddComponent<SpriteComponent>("radar", 64, 64, 2);
   radar.AddComponent<AnimationComponent>(8, 3, true);
+
+  _getEntityManager().DestroyEntity(radar);
 }
 
 void Game::Setup() { LoadLevel(1); }
