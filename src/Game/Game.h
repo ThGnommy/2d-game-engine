@@ -41,6 +41,7 @@ private:
   SDL_Renderer *_renderer{};
 
   std::unique_ptr<AssetStore> _assetStore{};
+  std::unique_ptr<EventBus> _eventBus{};
   EntityManager &_getEntityManager();
 };
 
