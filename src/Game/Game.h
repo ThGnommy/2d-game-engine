@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "../AssetStore/AssetStore.h"
+#include "../EventBus/EventBus.h"
 #include <SDL2/SDL.h>
 #include <memory>
 
