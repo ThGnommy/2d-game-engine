@@ -4,11 +4,11 @@
 #include "../Logger/Logger.h"
 #include "Event.h"
 #include <functional>
+#include <list>
+#include <map>
 #include <memory>
 #include <typeindex>
 #include <utility>
-#include <list>
-#include <map>
 
 class IEventCallback {
 public:
@@ -23,7 +23,11 @@ private:
 template <typename TOwner, typename TEvent>
 class EventCallback : public IEventCallback {
 private:
-  typedef void (TOwner::*CallbackFunction)(TEvent &);
+  // Alias for a member function pointer of TOwner that takes a TEvent& and
+  // returns void.
+  // Modern equivalent: std::function<void(TEvent&)>, but without type erasure
+  // overhead.
+  using CallbackFunction = void (TOwner::*)(TEvent &);
 
   TOwner *ownerInstance{};
   CallbackFunction callbackFunction{};
@@ -41,8 +45,7 @@ public:
   ~EventCallback() override = default;
 };
 
-typedef std::list<std::unique_ptr<IEventCallback>> HandlerList;
-
+using HandlerList = std::list<std::unique_ptr<IEventCallback>>;
 class EventBus {
 public:
   EventBus() { Logger::Log("EventBus constructed called!"); }
@@ -61,9 +64,9 @@ public:
       subscribers[typeid(TEvent)] = std::make_unique<HandlerList>();
     }
 
-    auto subscriber{std::make_unique<EventCallback<TOwner, TEvent>(
-        ownerInstance, callbackFunction)>};
-    subscriber[typeid(TEvent)]->push_back(std::move(subscriber));
+    auto subscriber{std::make_unique<EventCallback<TOwner, TEvent>>(
+        ownerInstance, callbackFunction)};
+    subscribers[typeid(TEvent)]->push_back(std::move(subscriber));
   }
 
   template <typename TEvent, typename... TArgs>
