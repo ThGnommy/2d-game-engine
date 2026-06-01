@@ -6,6 +6,8 @@
 #include "../Components/TransformComponent.h"
 #include "../ECS/Entity.h"
 #include "../ECS/System.h"
+#include "../Events/CollisionEvent.h"
+#include "../EventBus/EventBus.h"
 #include <SDL2/SDL.h>
 #include <cstddef>
 #include <string>
@@ -17,7 +19,7 @@ public:
     RequireComponent<BoxColliderComponent>();
   }
 
-  void Update() {
+  void Update(std::unique_ptr<EventBus>& eventBus) {
     const auto &entities{GetEntities()};
 
     // Compare each pair of entities only once (j starts from i+1
@@ -44,6 +46,7 @@ public:
           Logger::Warn(std::to_string(entities[i].GetId()) +
                        " is colliding with " +
                        std::to_string(entities[j].GetId()));
+          eventBus->EmitEvent<CollisionEvent>(entities[i], entities[j]);
         }
       }
     }

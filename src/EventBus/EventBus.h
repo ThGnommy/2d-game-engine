@@ -46,19 +46,22 @@ public:
 };
 
 using HandlerList = std::list<std::unique_ptr<IEventCallback>>;
+
 class EventBus {
 public:
   EventBus() { Logger::Log("EventBus constructed called!"); }
   ~EventBus() { Logger::Log("EventBus destructor called!"); }
+
+  void Reset() { subscribers.clear(); }
 
   /*
    * \brief Subscrive to an event type <T>
    * Example:
    * eventBus->SubscribeToEvent<CollisionEvent>(this,&Game::onCollision);
    * */
-  template <typename TOwner, typename TEvent>
+  template <typename TEvent, typename TOwner>
   void SubscribeToEvent(TOwner *ownerInstance,
-                        void (TOwner::*callbackFunction)(TEvent)) {
+                        void (TOwner::*callbackFunction)(TEvent&)) {
 
     if (!subscribers[typeid(TEvent)].get()) {
       subscribers[typeid(TEvent)] = std::make_unique<HandlerList>();
@@ -71,10 +74,11 @@ public:
 
   template <typename TEvent, typename... TArgs>
   void EmitEvent(TArgs &&...args) {
-    if (auto handlers{subscribers[typeid(TEvent)].get()}) {
+    if (const auto handlers{subscribers[typeid(TEvent)].get()}) {
+      TEvent event{std::forward<TArgs>(args)...};
+
       for (auto it{handlers->cbegin()}; it != handlers->cend(); it++) {
         auto handler{it->get()};
-        TEvent event{std::forward<TArgs>(args)...};
         handler->Execute(event);
       }
     }

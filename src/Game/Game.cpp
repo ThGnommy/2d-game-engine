@@ -8,6 +8,7 @@
 #include "../Logger/Logger.h"
 #include "../Systems/AnimationSystem.h"
 #include "../Systems/CollisionSystem.h"
+#include "../Systems/DamageSystem.h"
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderDebugSystem.h"
 #include "../Systems/RenderSystem.h"
@@ -30,6 +31,7 @@ Game::Game() {
   _isRunning = false;
   _debugMode = false;
   _assetStore = std::make_unique<AssetStore>();
+  _eventBus = std::make_unique<EventBus>();
   Logger::Log("Game constructor called!");
 }
 
@@ -99,6 +101,7 @@ void Game::LoadLevel(const int level) {
   EntityManager::Get().AddSystem<RenderDebugSystem>();
   EntityManager::Get().AddSystem<AnimationSystem>();
   EntityManager::Get().AddSystem<CollisionSystem>();
+  EntityManager::Get().AddSystem<DamageSystem>();
 
   // temp added texture
   _assetStore->AddTexture(_renderer, "tank-panther-down",
@@ -212,15 +215,20 @@ void Game::Update() {
 
   millisecsPrevFrame = SDL_GetTicks64();
 
-  // TODO: update game objects...
+  // Reset all events handlers for the current frame
+  _eventBus->Reset();
+
+  // Perfom the subscription of the events for all systems
+  _getEntityManager().GetSystem<DamageSystem>().SubscribeToEvents(_eventBus);
+
+  // Update the entity manager to process the entities that are waiting to be
+  // created/deleted
+  _getEntityManager().Update();
 
   // Ask all the systems to update
   _getEntityManager().GetSystem<MovementSystem>().Update(deltaTime);
   _getEntityManager().GetSystem<AnimationSystem>().Update();
-  _getEntityManager().GetSystem<CollisionSystem>().Update();
-  // Update the entity manager to process the entities that are waiting to be
-  // created/deleted
-  _getEntityManager().Update();
+  _getEntityManager().GetSystem<CollisionSystem>().Update(_eventBus);
 }
 
 void Game::Render() {

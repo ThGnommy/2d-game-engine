@@ -2,7 +2,7 @@
   {
     "file": "./src/Main.cpp",
     "arguments": [
-      "g++",
+      "/usr/bin/g++",
       "-Wall",
       "-Wfatal-errors",
       "-g",
@@ -18,7 +18,7 @@
   {
     "file": "./src/AssetStore/AssetStore.cpp",
     "arguments": [
-      "g++",
+      "/usr/bin/g++",
       "-Wall",
       "-Wfatal-errors",
       "-g",
@@ -34,7 +34,7 @@
   {
     "file": "./src/ECS/Entity.cpp",
     "arguments": [
-      "g++",
+      "/usr/bin/g++",
       "-Wall",
       "-Wfatal-errors",
       "-g",
@@ -50,7 +50,7 @@
   {
     "file": "./src/ECS/EntityManager.cpp",
     "arguments": [
-      "g++",
+      "/usr/bin/g++",
       "-Wall",
       "-Wfatal-errors",
       "-g",
@@ -66,7 +66,7 @@
   {
     "file": "./src/ECS/System.cpp",
     "arguments": [
-      "g++",
+      "/usr/bin/g++",
       "-Wall",
       "-Wfatal-errors",
       "-g",
@@ -82,7 +82,7 @@
   {
     "file": "./src/Game/Game.cpp",
     "arguments": [
-      "g++",
+      "/usr/bin/g++",
       "-Wall",
       "-Wfatal-errors",
       "-g",
@@ -98,7 +98,7 @@
   {
     "file": "./src/Logger/Logger.cpp",
     "arguments": [
-      "g++",
+      "/usr/bin/g++",
       "-Wall",
       "-Wfatal-errors",
       "-g",
