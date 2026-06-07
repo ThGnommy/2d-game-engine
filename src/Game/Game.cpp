@@ -9,6 +9,7 @@
 #include "../Systems/AnimationSystem.h"
 #include "../Systems/CollisionSystem.h"
 #include "../Systems/DamageSystem.h"
+#include "../Systems/KeyboardControlSystem.h"
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderDebugSystem.h"
 #include "../Systems/RenderSystem.h"
@@ -82,10 +83,12 @@ void Game::ProcessInput() {
     case SDL_QUIT:
       _isRunning = false;
       break;
-    case SDL_KEYDOWN:
+    case SDL_KEYDOWN: {
+      _eventBus->EmitEvent<KeyPressedEvent>(sdlEvent.key.keysym.sym);
       if (sdlEvent.key.keysym.sym == SDLK_ESCAPE) {
         _isRunning = false;
       }
+    }
       if (sdlEvent.key.keysym.sym == SDLK_d) {
         _debugMode = !_debugMode;
       }
@@ -102,6 +105,7 @@ void Game::LoadLevel(const int level) {
   EntityManager::Get().AddSystem<AnimationSystem>();
   EntityManager::Get().AddSystem<CollisionSystem>();
   EntityManager::Get().AddSystem<DamageSystem>();
+  EntityManager::Get().AddSystem<KeyboardControlSystem>();
 
   // temp added texture
   _assetStore->AddTexture(_renderer, "tank-panther-down",
@@ -220,6 +224,7 @@ void Game::Update() {
 
   // Perfom the subscription of the events for all systems
   _getEntityManager().GetSystem<DamageSystem>().SubscribeToEvents(_eventBus);
+  _getEntityManager().GetSystem<KeyboardControlSystem>().SubscribeToEvents(_eventBus);
 
   // Update the entity manager to process the entities that are waiting to be
   // created/deleted
