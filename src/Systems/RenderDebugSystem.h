@@ -4,7 +4,7 @@
 
 #include "../Components/BoxColliderComponent.h"
 #include "../Components/TransformComponent.h"
-#include "../ECS/Entity.h"
+#include "../ECS/EntityManager.h"
 #include "../ECS/System.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_rect.h>
@@ -26,8 +26,8 @@ private:
   void _drawDebugEntityCollision(SDL_Renderer *renderer) {
 
     for (const auto &entity : GetEntities()) {
-      const auto &transformC{entity.GetComponent<TransformComponent>()};
-      const auto &boxColliderC{entity.GetComponent<BoxColliderComponent>()};
+      const auto &transformC{EntityManager::Get().GetComponent<TransformComponent>(entity)};
+      const auto &boxColliderC{EntityManager::Get().GetComponent<BoxColliderComponent>(entity)};
 
       const SDL_Color color{boxColliderC.GetIsColliding()
                                 ? SDL_Color{255, 0, 0}

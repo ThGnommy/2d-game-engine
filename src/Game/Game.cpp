@@ -171,35 +171,35 @@ void Game::LoadLevel(const int level) {
 
       Entity tile = EntityManager::Get().CreateEntity();
 
-      tile.AddComponent<TransformComponent>(
-          glm::vec2(((tileSize * tileScale) * j), ((tileSize * tileScale) * i)),
+      EntityManager::Get().AddComponent<TransformComponent>(
+          tile, glm::vec2(((tileSize * tileScale) * j), ((tileSize * tileScale) * i)),
           glm::vec2(tileScale, tileScale));
-      tile.AddComponent<SpriteComponent>("jungle", tileSize, tileSize, 0, srcX,
+      EntityManager::Get().AddComponent<SpriteComponent>(tile, "jungle", tileSize, tileSize, 0, srcX,
                                          srcY);
     }
   }
 
   // create entities
   Entity tank = EntityManager::Get().CreateEntity();
-  tank.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0),
+  EntityManager::Get().AddComponent<TransformComponent>(tank, glm::vec2(100.0, 100.0),
                                         glm::vec2(2.0, 2.0), 0.0);
-  tank.AddComponent<RigidbodyComponent>(glm::vec2(50.0, 0.0));
-  tank.AddComponent<SpriteComponent>("tank-panther-down", 32, 32, 5);
-  tank.AddComponent<BoxColliderComponent>(32, 32);
+  EntityManager::Get().AddComponent<RigidbodyComponent>(tank, glm::vec2(50.0, 0.0));
+  EntityManager::Get().AddComponent<SpriteComponent>(tank, "tank-panther-down", 32, 32, 5);
+  EntityManager::Get().AddComponent<BoxColliderComponent>(tank, 32, 32);
 
   Entity chopper = EntityManager::Get().CreateEntity();
-  chopper.AddComponent<TransformComponent>(glm::vec2(500.0, 100.0),
+  EntityManager::Get().AddComponent<TransformComponent>(chopper, glm::vec2(500.0, 100.0),
                                            glm::vec2(2.0, 2.0), 0);
-  chopper.AddComponent<RigidbodyComponent>(glm::vec2(-50.0, 0.0));
-  chopper.AddComponent<SpriteComponent>("chopper", 32, 32, 2);
-  chopper.AddComponent<AnimationComponent>(2, 5, true);
-  chopper.AddComponent<BoxColliderComponent>(32, 32);
+  EntityManager::Get().AddComponent<RigidbodyComponent>(chopper, glm::vec2(-50.0, 0.0));
+  EntityManager::Get().AddComponent<SpriteComponent>(chopper, "chopper", 32, 32, 2);
+  EntityManager::Get().AddComponent<AnimationComponent>(chopper, 2, 5, true);
+  EntityManager::Get().AddComponent<BoxColliderComponent>(chopper, 32, 32);
 
   Entity radar = EntityManager::Get().CreateEntity();
-  radar.AddComponent<TransformComponent>(glm::vec2(200.0, 200.0),
+  EntityManager::Get().AddComponent<TransformComponent>(radar, glm::vec2(200.0, 200.0),
                                          glm::vec2(1.0, 1.0), 0);
-  radar.AddComponent<SpriteComponent>("radar", 64, 64, 2);
-  radar.AddComponent<AnimationComponent>(8, 3, true);
+  EntityManager::Get().AddComponent<SpriteComponent>(radar, "radar", 64, 64, 2);
+  EntityManager::Get().AddComponent<AnimationComponent>(radar, 8, 3, true);
 
   _getEntityManager().DestroyEntity(radar);
 }
@@ -224,7 +224,8 @@ void Game::Update() {
 
   // Perfom the subscription of the events for all systems
   _getEntityManager().GetSystem<DamageSystem>().SubscribeToEvents(_eventBus);
-  _getEntityManager().GetSystem<KeyboardControlSystem>().SubscribeToEvents(_eventBus);
+  _getEntityManager().GetSystem<KeyboardControlSystem>().SubscribeToEvents(
+      _eventBus);
 
   // Update the entity manager to process the entities that are waiting to be
   // created/deleted

@@ -4,7 +4,7 @@
 
 #include "../Components/BoxColliderComponent.h"
 #include "../Components/TransformComponent.h"
-#include "../ECS/Entity.h"
+#include "../ECS/EntityManager.h"
 #include "../ECS/System.h"
 #include "../Events/CollisionEvent.h"
 #include "../EventBus/EventBus.h"
@@ -37,9 +37,9 @@ public:
 
         // set the collision flag on both entities
         const auto colliding{_aabb(entityA, entityB)};
-        entities[i].GetComponent<BoxColliderComponent>().SetIsColliding(
+        EntityManager::Get().GetComponent<BoxColliderComponent>(entities[i]).SetIsColliding(
             colliding);
-        entities[j].GetComponent<BoxColliderComponent>().SetIsColliding(
+        EntityManager::Get().GetComponent<BoxColliderComponent>(entities[j]).SetIsColliding(
             colliding);
 
         if (colliding) {
@@ -61,8 +61,8 @@ private:
   };
 
   ColliderInfo _getColliderInfo(const Entity &entity) {
-    const auto &transformC{entity.GetComponent<TransformComponent>()};
-    const auto &boxColliderC{entity.GetComponent<BoxColliderComponent>()};
+    const auto &transformC{EntityManager::Get().GetComponent<TransformComponent>(entity)};
+    const auto &boxColliderC{EntityManager::Get().GetComponent<BoxColliderComponent>(entity)};
 
     return {
         transformC.position.x + boxColliderC.offset.x,

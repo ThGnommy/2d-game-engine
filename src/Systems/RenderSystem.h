@@ -5,7 +5,7 @@
 #include "../AssetStore/AssetStore.h"
 #include "../Components/SpriteComponent.h"
 #include "../Components/TransformComponent.h"
-#include "../ECS/Entity.h"
+#include "../ECS/EntityManager.h"
 #include "../ECS/System.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_rect.h>
@@ -31,8 +31,8 @@ public:
     std::vector<RenderableEntity> sortedEntities{};
     for (const auto &entity : GetEntities()) {
       RenderableEntity e{};
-      e.tc = entity.GetComponent<TransformComponent>();
-      e.sc = entity.GetComponent<SpriteComponent>();
+      e.tc = EntityManager::Get().GetComponent<TransformComponent>(entity);
+      e.sc = EntityManager::Get().GetComponent<SpriteComponent>(entity);
       sortedEntities.emplace_back(e);
     }
 

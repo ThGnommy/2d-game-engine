@@ -4,7 +4,7 @@
 
 #include "../Components/AnimationComponent.h"
 #include "../Components/SpriteComponent.h"
-#include "../ECS/Entity.h"
+#include "../ECS/EntityManager.h"
 #include "../ECS/System.h"
 #include <SDL2/SDL_timer.h>
 #include <iostream>
@@ -19,8 +19,8 @@ public:
 
   void Update() {
     for (const auto &entity : GetEntities()) {
-      auto &sprite{entity.GetComponent<SpriteComponent>()};
-      auto &animation{entity.GetComponent<AnimationComponent>()};
+      auto &sprite{EntityManager::Get().GetComponent<SpriteComponent>(entity)};
+      auto &animation{EntityManager::Get().GetComponent<AnimationComponent>(entity)};
 
       if (!animation.isLoop &&
           animation.currentFrame == animation.numFrames - 1) {

@@ -3,7 +3,7 @@
 
 #include "../Components/RigidbodyComponent.h"
 #include "../Components/TransformComponent.h"
-#include "../ECS/Entity.h"
+#include "../ECS/EntityManager.h"
 #include "../ECS/System.h"
 
 class MovementSystem : public System {
@@ -17,8 +17,8 @@ public:
     for (const auto &entity : GetEntities()) {
       // update entity pos based on its velocity
       // every frame of the game loop
-      auto &transform{entity.GetComponent<TransformComponent>()};
-      const auto rigidbody{entity.GetComponent<RigidbodyComponent>()};
+      auto &transform{EntityManager::Get().GetComponent<TransformComponent>(entity)};
+      const auto rigidbody{EntityManager::Get().GetComponent<RigidbodyComponent>(entity)};
 
       transform.position.x += rigidbody.velocity.x * deltaTime;
       transform.position.y += rigidbody.velocity.y * deltaTime;

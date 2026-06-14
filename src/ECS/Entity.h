@@ -3,7 +3,6 @@
 
 #include "../Logger/Logger.h"
 #include "Component.h"
-#include "EntityManager.h"
 #include <bitset>
 #include <cassert>
 #include <memory>
@@ -29,70 +28,7 @@ public:
 
   int GetId() const;
 
-  template <typename T, typename... TArgs> void AddComponent(TArgs &&...args) {
-    const auto componentId{Component<T>::GetId()};
-    const auto entityId{GetId()};
-
-    // Increment the capacity for accomodate the new component id
-    if (static_cast<size_t>(componentId) >=
-        _getEntityManager().componentPools.size()) {
-      _getEntityManager().componentPools.resize(componentId + 1, nullptr);
-    }
-
-    if (!_getEntityManager().componentPools[componentId]) {
-      std::shared_ptr<Pool<T>> newComponentPool = std::make_shared<Pool<T>>();
-      _getEntityManager().componentPools[componentId] = newComponentPool;
-    }
-
-    // Gets the pool of component values for the component type
-    std::shared_ptr<Pool<T>> componentPool{std::static_pointer_cast<Pool<T>>(
-        _getEntityManager().componentPools[componentId])};
-
-    if (entityId >= componentPool->GetSize()) {
-      componentPool->Resize(_getEntityManager().numEntities);
-    }
-
-    // Create a new component object of type T,
-    // and forward the various paramenters to the constructor
-    T newComponent(std::forward<TArgs>(args)...);
-
-    componentPool->Set(entityId, newComponent);
-    // change the component signature of the entity and set the component id on
-    // the bitset to 1
-    _getEntityManager().entityComponentSignatures[entityId].set(componentId);
-
-    Logger::Log("Component id = " + std::to_string(componentId) +
-                " was added to entity id " + std::to_string(entityId));
-  }
-
-  template <typename T> void RemoveComponent() {
-    const auto componentId{Component<T>::GetId()};
-    const auto entityId{GetId()};
-    _getEntityManager().entityComponentSignatures[entityId].set(componentId,
-                                                                false);
-
-    Logger::Log("Component id = " + std::to_string(componentId) +
-                " was removed from entity id " + std::to_string(entityId));
-  }
-
-  template <typename T> bool HasComponent() {
-    const auto componentId{Component<T>::GetId()};
-    const auto entityId{GetId()};
-
-    return _getEntityManager().entityComponentSignatures[entityId].test(
-        componentId);
-  }
-
-  template <typename T> T &GetComponent() const {
-    const auto componentId{Component<T>::GetId()};
-    const auto entityId{GetId()};
-    const auto component{std::static_pointer_cast<Pool<T>>(
-        _getEntityManager().componentPools[componentId])};
-    return component->Get(entityId);
-  }
-
 private:
-  EntityManager &_getEntityManager() const;
   int id{};
 };
 
