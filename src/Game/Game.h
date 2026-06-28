@@ -4,6 +4,7 @@
 #include "../AssetStore/AssetStore.h"
 #include "../EventBus/EventBus.h"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_rect.h>
 #include <memory>
 
 static constexpr unsigned int FPS{60};
@@ -41,9 +42,13 @@ private:
   SDL_Window *_window{};
   SDL_Renderer *_renderer{};
 
+  SDL_Rect camera{};
+
   std::unique_ptr<AssetStore> _assetStore{};
   std::unique_ptr<EventBus> _eventBus{};
   EntityManager &_getEntityManager();
+
+  void _initializeCameraView();
 };
 
 #endif

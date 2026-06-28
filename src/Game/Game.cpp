@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "../Components/AnimationComponent.h"
 #include "../Components/BoxColliderComponent.h"
+#include "../Components/KeyboardControlledComponent.h"
 #include "../Components/RigidbodyComponent.h"
 #include "../Components/SpriteComponent.h"
 #include "../Components/TransformComponent.h"
@@ -68,6 +69,8 @@ void Game::Initialize() {
     return;
   }
 
+  _initializeCameraView();
+
   // Change the video mode to REAL fullscreen
   // SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 
@@ -110,7 +113,8 @@ void Game::LoadLevel(const int level) {
   // temp added texture
   _assetStore->AddTexture(_renderer, "tank-panther-down",
                           "./assets/images/tank-panther-down.png");
-  _assetStore->AddTexture(_renderer, "chopper", "./assets/images/chopper.png");
+  _assetStore->AddTexture(_renderer, "chopper",
+                          "./assets/images/chopper-spritesheet.png");
 
   _assetStore->AddTexture(_renderer, "jungle", "./assets/tilemaps/jungle.png");
   _assetStore->AddTexture(_renderer, "radar", "./assets/images/radar.png");
@@ -172,32 +176,39 @@ void Game::LoadLevel(const int level) {
       Entity tile = EntityManager::Get().CreateEntity();
 
       EntityManager::Get().AddComponent<TransformComponent>(
-          tile, glm::vec2(((tileSize * tileScale) * j), ((tileSize * tileScale) * i)),
+          tile,
+          glm::vec2(((tileSize * tileScale) * j), ((tileSize * tileScale) * i)),
           glm::vec2(tileScale, tileScale));
-      EntityManager::Get().AddComponent<SpriteComponent>(tile, "jungle", tileSize, tileSize, 0, srcX,
-                                         srcY);
+      EntityManager::Get().AddComponent<SpriteComponent>(
+          tile, "jungle", tileSize, tileSize, 0, srcX, srcY);
     }
   }
 
   // create entities
   Entity tank = EntityManager::Get().CreateEntity();
-  EntityManager::Get().AddComponent<TransformComponent>(tank, glm::vec2(100.0, 100.0),
-                                        glm::vec2(2.0, 2.0), 0.0);
-  EntityManager::Get().AddComponent<RigidbodyComponent>(tank, glm::vec2(50.0, 0.0));
-  EntityManager::Get().AddComponent<SpriteComponent>(tank, "tank-panther-down", 32, 32, 5);
+  EntityManager::Get().AddComponent<TransformComponent>(
+      tank, glm::vec2(100.0, 100.0), glm::vec2(2.0, 2.0), 0.0);
+  EntityManager::Get().AddComponent<RigidbodyComponent>(tank,
+                                                        glm::vec2(50.0, 0.0));
+  EntityManager::Get().AddComponent<SpriteComponent>(tank, "tank-panther-down",
+                                                     32, 32, 5);
   EntityManager::Get().AddComponent<BoxColliderComponent>(tank, 32, 32);
 
   Entity chopper = EntityManager::Get().CreateEntity();
-  EntityManager::Get().AddComponent<TransformComponent>(chopper, glm::vec2(500.0, 100.0),
-                                           glm::vec2(2.0, 2.0), 0);
-  EntityManager::Get().AddComponent<RigidbodyComponent>(chopper, glm::vec2(-50.0, 0.0));
-  EntityManager::Get().AddComponent<SpriteComponent>(chopper, "chopper", 32, 32, 2);
+  EntityManager::Get().AddComponent<TransformComponent>(
+      chopper, glm::vec2(500.0, 100.0), glm::vec2(2.0, 2.0), 0);
+  EntityManager::Get().AddComponent<RigidbodyComponent>(chopper,
+                                                        glm::vec2(0.0, 0.0));
+  EntityManager::Get().AddComponent<SpriteComponent>(chopper, "chopper", 32, 32,
+                                                     2);
   EntityManager::Get().AddComponent<AnimationComponent>(chopper, 2, 5, true);
   EntityManager::Get().AddComponent<BoxColliderComponent>(chopper, 32, 32);
+  EntityManager::Get().AddComponent<KeyboardControlledComponent>(
+      chopper, 100., 100., 100., 100.);
 
   Entity radar = EntityManager::Get().CreateEntity();
-  EntityManager::Get().AddComponent<TransformComponent>(radar, glm::vec2(200.0, 200.0),
-                                         glm::vec2(1.0, 1.0), 0);
+  EntityManager::Get().AddComponent<TransformComponent>(
+      radar, glm::vec2(200.0, 200.0), glm::vec2(1.0, 1.0), 0);
   EntityManager::Get().AddComponent<SpriteComponent>(radar, "radar", 64, 64, 2);
   EntityManager::Get().AddComponent<AnimationComponent>(radar, 8, 3, true);
 
@@ -270,3 +281,10 @@ void Game::Destroy() {
 }
 
 EntityManager &Game::_getEntityManager() { return EntityManager::Get(); }
+
+void Game::_initializeCameraView() {
+  camera.x = 0;
+  camera.y = 0;
+  camera.w = WindowWidth;
+  camera.h = WindowHeight;
+}

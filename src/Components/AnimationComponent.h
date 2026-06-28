@@ -1,9 +1,8 @@
-#ifndef ANIMAIONCOMPONENT_H
-#define ANIMAIONCOMPONENT_H
+#ifndef ANIMATIONCOMPONENT_H
+#define ANIMATIONCOMPONENT_H
 
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_timer.h>
-#include <string>
 
 struct AnimationComponent {
   int numFrames{};
