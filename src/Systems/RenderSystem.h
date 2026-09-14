@@ -21,7 +21,7 @@ public:
     RequireComponent<SpriteComponent>();
   }
 
-  void Update(SDL_Renderer *renderer, std::unique_ptr<AssetStore> &assetStore) {
+  void Update(SDL_Renderer *renderer, std::unique_ptr<AssetStore> &assetStore, const SDL_Rect& camera) {
 
     struct RenderableEntity {
       TransformComponent tc{};
@@ -36,19 +36,21 @@ public:
       sortedEntities.emplace_back(e);
     }
 
+    // sort entities by z-index
     std::sort(sortedEntities.begin(), sortedEntities.end(),
               [](const RenderableEntity &a, const RenderableEntity &b) {
                 return a.sc.zIndex < b.sc.zIndex;
               });
 
+    // here we actually render all the sprites
     for (auto entity : sortedEntities) {
       const auto transform{entity.tc};
       const auto sprite{entity.sc};
 
       SDL_Rect srcRect{sprite.srcRect};
 
-      SDL_Rect dsrRect{static_cast<int>(transform.position.x),
-                       static_cast<int>(transform.position.y),
+      SDL_Rect dsrRect{static_cast<int>(transform.position.x - camera.x),
+                       static_cast<int>(transform.position.y - camera.y),
                        static_cast<int>(sprite.width * transform.scale.x),
                        static_cast<int>(sprite.height * transform.scale.y)};
 

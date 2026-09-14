@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "../Components/AnimationComponent.h"
 #include "../Components/BoxColliderComponent.h"
+#include "../Components/CameraFollowComponent.h"
 #include "../Components/KeyboardControlledComponent.h"
 #include "../Components/RigidbodyComponent.h"
 #include "../Components/SpriteComponent.h"
@@ -8,6 +9,7 @@
 #include "../ECS/Entity.h"
 #include "../Logger/Logger.h"
 #include "../Systems/AnimationSystem.h"
+#include "../Systems/CameraMovementSystem.h"
 #include "../Systems/CollisionSystem.h"
 #include "../Systems/DamageSystem.h"
 #include "../Systems/KeyboardControlSystem.h"
@@ -20,6 +22,7 @@
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_surface.h>
+#include <SDL2/SDL_video.h>
 #include <cctype>
 #include <cstddef>
 #include <fstream>
@@ -53,7 +56,7 @@ void Game::Initialize() {
 
   _window =
       SDL_CreateWindow(NULL, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                       1024, 768, SDL_WINDOW_ALWAYS_ON_TOP);
+                       WindowWidth, WindowHeight, SDL_WINDOW_BORDERLESS);
 
   if (!_window) {
     Logger::Err("Error creating SDL window.");
@@ -109,6 +112,7 @@ void Game::LoadLevel(const int level) {
   EntityManager::Get().AddSystem<CollisionSystem>();
   EntityManager::Get().AddSystem<DamageSystem>();
   EntityManager::Get().AddSystem<KeyboardControlSystem>();
+  EntityManager::Get().AddSystem<CameraMovementSystem>();
 
   // temp added texture
   _assetStore->AddTexture(_renderer, "tank-panther-down",
@@ -119,84 +123,12 @@ void Game::LoadLevel(const int level) {
   _assetStore->AddTexture(_renderer, "jungle", "./assets/tilemaps/jungle.png");
   _assetStore->AddTexture(_renderer, "radar", "./assets/images/radar.png");
 
-  std::vector<std::vector<int>> tileMatrix{};
-
-  std::string line;
-  std::ifstream mapFile;
-  mapFile.open("./assets/tilemaps/jungle.map");
-
-  int index = 0;
-
-  if (mapFile.is_open()) {
-    while (getline(mapFile, line)) {
-
-      std::string tile{};
-
-      tileMatrix.emplace_back(std::vector<int>{});
-
-      for (size_t i = 0; i < line.size(); i++) {
-        if (!std::isdigit(line[i])) {
-          tileMatrix[index].emplace_back(std::stoi(tile));
-          tile = "";
-          continue;
-        }
-
-        tile += line[i];
-      }
-
-      index++;
-    }
-
-    mapFile.close();
-  }
-
-  // Actually draw the tilemap
-  constexpr int tileSize{32};
-  constexpr double tileScale{2.0};
-
-  SDL_Surface *surface = IMG_Load("./assets/tilemaps/jungle.png");
-  const int tileWidth = surface->w;
-  SDL_FreeSurface(surface);
-
-  // How many row the tilemap image has
-  const int tilesPerRow = tileWidth / tileSize;
-
-  for (size_t i{0}; i < tileMatrix.size(); i++) {
-    for (size_t j{0}; j < tileMatrix[i].size(); j++) {
-
-      // The index of the current tile
-      const int tileIndex = tileMatrix[i][j];
-
-      // Find what row in the tilemap I have to look
-      const int row = floor(tileIndex / tilesPerRow);
-
-      const int srcX = (tileIndex - (row * tilesPerRow)) * tileSize;
-      const int srcY = row * tileSize;
-
-      Entity tile = EntityManager::Get().CreateEntity();
-
-      EntityManager::Get().AddComponent<TransformComponent>(
-          tile,
-          glm::vec2(((tileSize * tileScale) * j), ((tileSize * tileScale) * i)),
-          glm::vec2(tileScale, tileScale));
-      EntityManager::Get().AddComponent<SpriteComponent>(
-          tile, "jungle", tileSize, tileSize, 0, srcX, srcY);
-    }
-  }
+  _makeTilemap();
 
   // create entities
-  Entity tank = EntityManager::Get().CreateEntity();
-  EntityManager::Get().AddComponent<TransformComponent>(
-      tank, glm::vec2(100.0, 100.0), glm::vec2(2.0, 2.0), 0.0);
-  EntityManager::Get().AddComponent<RigidbodyComponent>(tank,
-                                                        glm::vec2(50.0, 0.0));
-  EntityManager::Get().AddComponent<SpriteComponent>(tank, "tank-panther-down",
-                                                     32, 32, 5);
-  EntityManager::Get().AddComponent<BoxColliderComponent>(tank, 32, 32);
-
   Entity chopper = EntityManager::Get().CreateEntity();
   EntityManager::Get().AddComponent<TransformComponent>(
-      chopper, glm::vec2(500.0, 100.0), glm::vec2(2.0, 2.0), 0);
+      chopper, glm::vec2(500.0, 100.0), glm::vec2(3.0, 3.0), 0);
   EntityManager::Get().AddComponent<RigidbodyComponent>(chopper,
                                                         glm::vec2(0.0, 0.0));
   EntityManager::Get().AddComponent<SpriteComponent>(chopper, "chopper", 32, 32,
@@ -205,10 +137,11 @@ void Game::LoadLevel(const int level) {
   EntityManager::Get().AddComponent<BoxColliderComponent>(chopper, 32, 32);
   EntityManager::Get().AddComponent<KeyboardControlledComponent>(
       chopper, 100., 100., 100., 100.);
+  EntityManager::Get().AddComponent<CameraFollowComponent>(chopper);
 
   Entity radar = EntityManager::Get().CreateEntity();
   EntityManager::Get().AddComponent<TransformComponent>(
-      radar, glm::vec2(200.0, 200.0), glm::vec2(1.0, 1.0), 0);
+      radar, glm::vec2(200.0, 200.0), glm::vec2(2.0, 2.0), 0);
   EntityManager::Get().AddComponent<SpriteComponent>(radar, "radar", 64, 64, 2);
   EntityManager::Get().AddComponent<AnimationComponent>(radar, 8, 3, true);
 
@@ -246,6 +179,7 @@ void Game::Update() {
   _getEntityManager().GetSystem<MovementSystem>().Update(deltaTime);
   _getEntityManager().GetSystem<AnimationSystem>().Update();
   _getEntityManager().GetSystem<CollisionSystem>().Update(_eventBus);
+  _getEntityManager().GetSystem<CameraMovementSystem>().Update(camera);
 }
 
 void Game::Render() {
@@ -253,7 +187,8 @@ void Game::Render() {
   SDL_SetRenderDrawColor(_renderer, 21, 21, 21, 255);
   SDL_RenderClear(_renderer);
 
-  _getEntityManager().GetSystem<RenderSystem>().Update(_renderer, _assetStore);
+  _getEntityManager().GetSystem<RenderSystem>().Update(_renderer, _assetStore,
+                                                       camera);
 
   if (_debugMode) {
     _getEntityManager().GetSystem<RenderDebugSystem>().Update(_renderer);
@@ -281,6 +216,80 @@ void Game::Destroy() {
 }
 
 EntityManager &Game::_getEntityManager() { return EntityManager::Get(); }
+
+void Game::_makeTilemap() const {
+  std::vector<std::vector<int>> tileMatrix{};
+
+  std::string line;
+  std::ifstream mapFile;
+  mapFile.open("./assets/tilemaps/jungle.map");
+
+  int index = 0;
+
+  if (mapFile.is_open()) {
+    while (getline(mapFile, line)) {
+
+      std::string tile{};
+
+      tileMatrix.emplace_back(std::vector<int>{});
+
+      for (size_t i = 0; i < line.size(); i++) {
+        if (!std::isdigit(line[i])) {
+          tileMatrix[index].emplace_back(std::stoi(tile));
+          tile = "";
+          continue;
+        }
+
+        tile += line[i];
+      }
+
+      if (!tile.empty()) {
+        tileMatrix[index].emplace_back(std::stoi(tile));
+      }
+
+      index++;
+    }
+
+    mapFile.close();
+  }
+
+  // Actually draw the tilemap
+  constexpr int tileSize{32};
+  constexpr int tileScale{3};
+
+  SDL_Surface *surface = IMG_Load("./assets/tilemaps/jungle.png");
+  const int tileWidth = surface->w;
+  SDL_FreeSurface(surface);
+
+  // How many row the tilemap image has
+  const int tilesPerRow = tileWidth / tileSize;
+
+  for (size_t i{0}; i < tileMatrix.size(); i++) {
+    for (size_t j{0}; j < tileMatrix[i].size(); j++) {
+
+      // The index of the current tile
+      const int tileIndex = tileMatrix[i][j];
+
+      // Find what row in the tilemap I have to look
+      const int row = floor(tileIndex / tilesPerRow);
+
+      const int srcX = (tileIndex - (row * tilesPerRow)) * tileSize;
+      const int srcY = row * tileSize;
+
+      Entity tile = EntityManager::Get().CreateEntity();
+
+      EntityManager::Get().AddComponent<TransformComponent>(
+          tile,
+          glm::vec2(((tileSize * tileScale) * j), ((tileSize * tileScale) * i)),
+          glm::vec2(tileScale, tileScale));
+      EntityManager::Get().AddComponent<SpriteComponent>(
+          tile, "jungle", tileSize, tileSize, 0, srcX, srcY);
+    }
+
+    MapHeight = tileMatrix.size() * tileSize * tileScale;
+    MapWidth = tileMatrix[0].size() * tileSize * tileScale;
+  }
+}
 
 void Game::_initializeCameraView() {
   camera.x = 0;

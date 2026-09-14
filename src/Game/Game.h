@@ -32,8 +32,11 @@ public:
 
   void LoadLevel(int level);
 
-  int WindowWidth{};
-  int WindowHeight{};
+  inline static int WindowWidth{};
+  inline static int WindowHeight{};
+
+  inline static int MapWidth{};
+  inline static int MapHeight{};
 
 private:
   bool _isRunning{};
@@ -48,6 +51,7 @@ private:
   std::unique_ptr<EventBus> _eventBus{};
   EntityManager &_getEntityManager();
 
+  void _makeTilemap() const;
   void _initializeCameraView();
 };
 
