@@ -17,25 +17,30 @@ public:
     RequireComponent<BoxColliderComponent>();
   }
 
-  void Update(SDL_Renderer *renderer) {
+  void Update(SDL_Renderer *renderer, const SDL_Rect &camera) {
     assertm(renderer != nullptr, "Renderer must be valid.");
-    _drawDebugEntityCollision(renderer);
+    _drawDebugEntityCollision(renderer, camera);
   }
 
 private:
-  void _drawDebugEntityCollision(SDL_Renderer *renderer) {
+  void _drawDebugEntityCollision(SDL_Renderer *renderer,
+                                 const SDL_Rect &camera) {
 
     for (const auto &entity : GetEntities()) {
-      const auto &transformC{EntityManager::Get().GetComponent<TransformComponent>(entity)};
-      const auto &boxColliderC{EntityManager::Get().GetComponent<BoxColliderComponent>(entity)};
+      const auto &transformC{
+          EntityManager::Get().GetComponent<TransformComponent>(entity)};
+      const auto &boxColliderC{
+          EntityManager::Get().GetComponent<BoxColliderComponent>(entity)};
 
       const SDL_Color color{boxColliderC.GetIsColliding()
                                 ? SDL_Color{255, 0, 0}
                                 : SDL_Color{0, 255, 0}};
 
       const SDL_Rect collider{
-          static_cast<int>(transformC.position.x + boxColliderC.offset.x),
-          static_cast<int>(transformC.position.y + boxColliderC.offset.y),
+          static_cast<int>(transformC.position.x + boxColliderC.offset.x -
+                           camera.x),
+          static_cast<int>(transformC.position.y + boxColliderC.offset.y -
+                           camera.y),
           static_cast<int>(boxColliderC.width * transformC.scale.x),
           static_cast<int>(boxColliderC.height * transformC.scale.y),
       };

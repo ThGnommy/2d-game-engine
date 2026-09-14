@@ -136,16 +136,15 @@ void Game::LoadLevel(const int level) {
   EntityManager::Get().AddComponent<AnimationComponent>(chopper, 2, 5, true);
   EntityManager::Get().AddComponent<BoxColliderComponent>(chopper, 32, 32);
   EntityManager::Get().AddComponent<KeyboardControlledComponent>(
-      chopper, 100., 100., 100., 100.);
+      chopper, 200., 200., 200., 200.);
   EntityManager::Get().AddComponent<CameraFollowComponent>(chopper);
 
   Entity radar = EntityManager::Get().CreateEntity();
   EntityManager::Get().AddComponent<TransformComponent>(
       radar, glm::vec2(200.0, 200.0), glm::vec2(2.0, 2.0), 0);
-  EntityManager::Get().AddComponent<SpriteComponent>(radar, "radar", 64, 64, 2);
+  EntityManager::Get().AddComponent<SpriteComponent>(radar, "radar", 64, 64, 2,
+                                                     true);
   EntityManager::Get().AddComponent<AnimationComponent>(radar, 8, 3, true);
-
-  _getEntityManager().DestroyEntity(radar);
 }
 
 void Game::Setup() { LoadLevel(1); }
@@ -191,7 +190,7 @@ void Game::Render() {
                                                        camera);
 
   if (_debugMode) {
-    _getEntityManager().GetSystem<RenderDebugSystem>().Update(_renderer);
+    _getEntityManager().GetSystem<RenderDebugSystem>().Update(_renderer, camera);
   }
 
   SDL_RenderPresent(_renderer);
@@ -283,7 +282,7 @@ void Game::_makeTilemap() const {
           glm::vec2(((tileSize * tileScale) * j), ((tileSize * tileScale) * i)),
           glm::vec2(tileScale, tileScale));
       EntityManager::Get().AddComponent<SpriteComponent>(
-          tile, "jungle", tileSize, tileSize, 0, srcX, srcY);
+          tile, "jungle", tileSize, tileSize, 0, false, srcX, srcY);
     }
 
     MapHeight = tileMatrix.size() * tileSize * tileScale;
