@@ -3,6 +3,7 @@
 #include "../Components/BoxColliderComponent.h"
 #include "../Components/CameraFollowComponent.h"
 #include "../Components/KeyboardControlledComponent.h"
+#include "../Components/ProjectileEmitterComponent.h"
 #include "../Components/RigidbodyComponent.h"
 #include "../Components/SpriteComponent.h"
 #include "../Components/TransformComponent.h"
@@ -14,6 +15,7 @@
 #include "../Systems/DamageSystem.h"
 #include "../Systems/KeyboardControlSystem.h"
 #include "../Systems/MovementSystem.h"
+#include "../Systems/ProjectileEmitterSystem.h"
 #include "../Systems/RenderDebugSystem.h"
 #include "../Systems/RenderSystem.h"
 #include "SDL2/SDL_render.h"
@@ -54,9 +56,8 @@ void Game::Initialize() {
   WindowWidth = displayMode.w;
   WindowHeight = displayMode.h;
 
-  _window =
-      SDL_CreateWindow(NULL, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                       WindowWidth, WindowHeight, SDL_WINDOW_BORDERLESS);
+  _window = SDL_CreateWindow(NULL, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WindowWidth, WindowHeight,
+                             SDL_WINDOW_BORDERLESS);
 
   if (!_window) {
     Logger::Err("Error creating SDL window.");
@@ -64,8 +65,7 @@ void Game::Initialize() {
   }
 
   // Create a 2D rendering context for a window.
-  _renderer = SDL_CreateRenderer(
-      _window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+  _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
   if (!_renderer) {
     Logger::Err("Error creating SDL renderer.");
@@ -113,37 +113,34 @@ void Game::LoadLevel(const int level) {
   EntityManager::Get().AddSystem<DamageSystem>();
   EntityManager::Get().AddSystem<KeyboardControlSystem>();
   EntityManager::Get().AddSystem<CameraMovementSystem>();
+  EntityManager::Get().AddSystem<ProjectileEmitterSystem>();
 
   // temp added texture
-  _assetStore->AddTexture(_renderer, "tank-panther-down",
-                          "./assets/images/tank-panther-down.png");
-  _assetStore->AddTexture(_renderer, "chopper",
-                          "./assets/images/chopper-spritesheet.png");
+  _assetStore->AddTexture(_renderer, "tank-panther-down", "./assets/images/tank-panther-down.png");
+  _assetStore->AddTexture(_renderer, "chopper", "./assets/images/chopper-spritesheet.png");
 
   _assetStore->AddTexture(_renderer, "jungle", "./assets/tilemaps/jungle.png");
   _assetStore->AddTexture(_renderer, "radar", "./assets/images/radar.png");
+  _assetStore->AddTexture(_renderer, "bullet", "./assets/images/bullet.png");
 
   _makeTilemap();
 
   // create entities
+  // create chopper
   Entity chopper = EntityManager::Get().CreateEntity();
-  EntityManager::Get().AddComponent<TransformComponent>(
-      chopper, glm::vec2(500.0, 100.0), glm::vec2(3.0, 3.0), 0);
-  EntityManager::Get().AddComponent<RigidbodyComponent>(chopper,
-                                                        glm::vec2(0.0, 0.0));
-  EntityManager::Get().AddComponent<SpriteComponent>(chopper, "chopper", 32, 32,
-                                                     2);
+  EntityManager::Get().AddComponent<TransformComponent>(chopper, glm::vec2(500.0, 100.0), glm::vec2(3.0, 3.0), 0);
+  EntityManager::Get().AddComponent<RigidbodyComponent>(chopper, glm::vec2(0.0, 0.0));
+  EntityManager::Get().AddComponent<SpriteComponent>(chopper, "chopper", 32, 32, 2);
   EntityManager::Get().AddComponent<AnimationComponent>(chopper, 2, 5, true);
   EntityManager::Get().AddComponent<BoxColliderComponent>(chopper, 32, 32);
-  EntityManager::Get().AddComponent<KeyboardControlledComponent>(
-      chopper, 200., 200., 200., 200.);
+  EntityManager::Get().AddComponent<KeyboardControlledComponent>(chopper, 200., 200., 200., 200.);
   EntityManager::Get().AddComponent<CameraFollowComponent>(chopper);
+  EntityManager::Get().AddComponent<ProjectileEmitterComponent>(chopper, glm::vec2(100, 0));
 
+  // create radar
   Entity radar = EntityManager::Get().CreateEntity();
-  EntityManager::Get().AddComponent<TransformComponent>(
-      radar, glm::vec2(200.0, 200.0), glm::vec2(2.0, 2.0), 0);
-  EntityManager::Get().AddComponent<SpriteComponent>(radar, "radar", 64, 64, 2,
-                                                     true);
+  EntityManager::Get().AddComponent<TransformComponent>(radar, glm::vec2(200.0, 200.0), glm::vec2(2.0, 2.0), 0);
+  EntityManager::Get().AddComponent<SpriteComponent>(radar, "radar", 64, 64, 2, true);
   EntityManager::Get().AddComponent<AnimationComponent>(radar, 8, 3, true);
 }
 
@@ -151,8 +148,7 @@ void Game::Setup() { LoadLevel(1); }
 
 void Game::Update() {
   // If we are too fast, waste some time until we reach MILLISECS_PER_FRAME
-  const unsigned int timeToWait =
-      MILLISECS_PER_FRAME - (SDL_GetTicks64() - millisecsPrevFrame);
+  const unsigned int timeToWait = MILLISECS_PER_FRAME - (SDL_GetTicks64() - millisecsPrevFrame);
 
   if (timeToWait > 0 && timeToWait <= MILLISECS_PER_FRAME) {
     SDL_Delay(timeToWait);
@@ -167,8 +163,7 @@ void Game::Update() {
 
   // Perfom the subscription of the events for all systems
   _getEntityManager().GetSystem<DamageSystem>().SubscribeToEvents(_eventBus);
-  _getEntityManager().GetSystem<KeyboardControlSystem>().SubscribeToEvents(
-      _eventBus);
+  _getEntityManager().GetSystem<KeyboardControlSystem>().SubscribeToEvents(_eventBus);
 
   // Update the entity manager to process the entities that are waiting to be
   // created/deleted
@@ -179,6 +174,7 @@ void Game::Update() {
   _getEntityManager().GetSystem<AnimationSystem>().Update();
   _getEntityManager().GetSystem<CollisionSystem>().Update(_eventBus);
   _getEntityManager().GetSystem<CameraMovementSystem>().Update(camera);
+  _getEntityManager().GetSystem<ProjectileEmitterSystem>().Update();
 }
 
 void Game::Render() {
@@ -186,8 +182,7 @@ void Game::Render() {
   SDL_SetRenderDrawColor(_renderer, 21, 21, 21, 255);
   SDL_RenderClear(_renderer);
 
-  _getEntityManager().GetSystem<RenderSystem>().Update(_renderer, _assetStore,
-                                                       camera);
+  _getEntityManager().GetSystem<RenderSystem>().Update(_renderer, _assetStore, camera);
 
   if (_debugMode) {
     _getEntityManager().GetSystem<RenderDebugSystem>().Update(_renderer, camera);
@@ -278,11 +273,8 @@ void Game::_makeTilemap() const {
       Entity tile = EntityManager::Get().CreateEntity();
 
       EntityManager::Get().AddComponent<TransformComponent>(
-          tile,
-          glm::vec2(((tileSize * tileScale) * j), ((tileSize * tileScale) * i)),
-          glm::vec2(tileScale, tileScale));
-      EntityManager::Get().AddComponent<SpriteComponent>(
-          tile, "jungle", tileSize, tileSize, 0, false, srcX, srcY);
+          tile, glm::vec2(((tileSize * tileScale) * j), ((tileSize * tileScale) * i)), glm::vec2(tileScale, tileScale));
+      EntityManager::Get().AddComponent<SpriteComponent>(tile, "jungle", tileSize, tileSize, 0, false, srcX, srcY);
     }
 
     MapHeight = tileMatrix.size() * tileSize * tileScale;

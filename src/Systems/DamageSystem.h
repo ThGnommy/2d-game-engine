@@ -11,23 +11,17 @@ public:
   DamageSystem() { RequireComponent<BoxColliderComponent>(); }
 
   void SubscribeToEvents(std::unique_ptr<EventBus> &eventBus) {
-    eventBus->SubscribeToEvent<CollisionEvent>(this,
-                                               &DamageSystem::onCollision);
-  }
-
-  void Update() {
-    // TODO:...
+    eventBus->SubscribeToEvent<CollisionEvent>(this, &DamageSystem::onCollision);
   }
 
 protected:
   void onCollision(CollisionEvent &event) {
-    Logger::Log(
-        "The Damage system received an event collision between entities " +
-        std::to_string(event.a.GetId()) + " and " +
-        std::to_string(event.b.GetId()));
+    Logger::Log("The Damage system received an event collision between entities " + std::to_string(event.a.GetId()) +
+                " and " + std::to_string(event.b.GetId()));
 
-    EntityManager::Get().DestroyEntity(event.a);
-    EntityManager::Get().DestroyEntity(event.b);
+    // todo: health component
+    // EntityManager::Get().DestroyEntity(event.a);
+    // EntityManager::Get().DestroyEntity(event.b);
   }
 };
 
