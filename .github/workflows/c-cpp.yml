@@ -13,14 +13,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: install dependencies
+    - uses: awalsh128/cache-apt-pkgs-action@v1
+      with:
+        packages: libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev liblua5.4-dev
+        version: 1.0
+
+    - name: link lua
       run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev \
-          liblua5.4-dev
-        # Ubuntu only ships liblua5.4.so, but your Makefile links with -llua
-        sudo ln -s /usr/lib/x86_64-linux-gnu/liblua5.4.so /usr/lib/x86_64-linux-gnu/liblua.so
+        # Ubuntu only ships liblua5.4.so, but the Makefile links with -llua
+        sudo ln -sf /usr/lib/x86_64-linux-gnu/liblua5.4.so /usr/lib/x86_64-linux-gnu/liblua.so
 
     - name: build
       run: make build
