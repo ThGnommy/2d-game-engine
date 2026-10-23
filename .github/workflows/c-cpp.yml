@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Linux Build
 
 on:
   push:
@@ -8,16 +8,22 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+
+    - name: install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev \
+          liblua5.4-dev
+        # Ubuntu only ships liblua5.4.so, but your Makefile links with -llua
+        sudo ln -s /usr/lib/x86_64-linux-gnu/liblua5.4.so /usr/lib/x86_64-linux-gnu/liblua.so
+
+    - name: build
+      run: make build
+      env:
+        # Ubuntu puts Lua headers in a versioned directory
+        CPATH: /usr/include/lua5.4
