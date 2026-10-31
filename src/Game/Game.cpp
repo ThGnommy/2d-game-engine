@@ -17,6 +17,7 @@
 #include "../Systems/KeyboardControlSystem.h"
 #include "../Systems/MovementSystem.h"
 #include "../Systems/ProjectileEmitterSystem.h"
+#include "../Systems/ProjectileLifecycleSystem.h"
 #include "../Systems/RenderDebugSystem.h"
 #include "../Systems/RenderSystem.h"
 #include "SDL2/SDL_render.h"
@@ -115,6 +116,7 @@ void Game::LoadLevel(const int level) {
   EntityManager::Get().AddSystem<KeyboardControlSystem>();
   EntityManager::Get().AddSystem<CameraMovementSystem>();
   EntityManager::Get().AddSystem<ProjectileEmitterSystem>();
+  EntityManager::Get().AddSystem<ProjectileLifecycleSystem>();
 
   // temp added texture
   _assetStore->AddTexture(_renderer, "tank-panther-down", "./assets/images/tank-panther-down.png");
@@ -177,6 +179,7 @@ void Game::Update() {
   _getEntityManager().GetSystem<CollisionSystem>().Update(_eventBus);
   _getEntityManager().GetSystem<CameraMovementSystem>().Update(camera);
   _getEntityManager().GetSystem<ProjectileEmitterSystem>().Update();
+  _getEntityManager().GetSystem<ProjectileLifecycleSystem>().Update();
 }
 
 void Game::Render() {
