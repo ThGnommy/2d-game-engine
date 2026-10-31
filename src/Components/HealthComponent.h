@@ -5,7 +5,7 @@
 #include <glm/vec2.hpp>
 
 struct HealthComponent {
-  HealthComponent(unsigned int health) : health(health) {}
+  HealthComponent(unsigned int health = 10) : health(health) {}
 
   unsigned int health{};
 };
