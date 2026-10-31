@@ -20,8 +20,7 @@ private:
   virtual void _call(Event &event) = 0;
 };
 
-template <typename TOwner, typename TEvent>
-class EventCallback : public IEventCallback {
+template <typename TOwner, typename TEvent> class EventCallback : public IEventCallback {
 private:
   // Alias for a member function pointer of TOwner that takes a TEvent& and
   // returns void.
@@ -32,9 +31,7 @@ private:
   TOwner *ownerInstance{};
   CallbackFunction callbackFunction{};
 
-  void _call(Event &event) override {
-    std::invoke(callbackFunction, ownerInstance, static_cast<TEvent &>(event));
-  }
+  void _call(Event &event) override { std::invoke(callbackFunction, ownerInstance, static_cast<TEvent &>(event)); }
 
 public:
   EventCallback(TOwner *ownerInstance, CallbackFunction callbackFunction) {
@@ -60,20 +57,17 @@ public:
    * eventBus->SubscribeToEvent<CollisionEvent>(this,&Game::onCollision);
    * */
   template <typename TEvent, typename TOwner>
-  void SubscribeToEvent(TOwner *ownerInstance,
-                        void (TOwner::*callbackFunction)(TEvent&)) {
+  void SubscribeToEvent(TOwner *ownerInstance, void (TOwner::*callbackFunction)(TEvent &)) {
 
     if (!subscribers[typeid(TEvent)].get()) {
       subscribers[typeid(TEvent)] = std::make_unique<HandlerList>();
     }
 
-    auto subscriber{std::make_unique<EventCallback<TOwner, TEvent>>(
-        ownerInstance, callbackFunction)};
+    auto subscriber{std::make_unique<EventCallback<TOwner, TEvent>>(ownerInstance, callbackFunction)};
     subscribers[typeid(TEvent)]->push_back(std::move(subscriber));
   }
 
-  template <typename TEvent, typename... TArgs>
-  void EmitEvent(TArgs &&...args) {
+  template <typename TEvent, typename... TArgs> void EmitEvent(TArgs &&...args) {
     if (const auto handlers{subscribers[typeid(TEvent)].get()}) {
       TEvent event{std::forward<TArgs>(args)...};
 

@@ -7,6 +7,7 @@
 #include "../Components/RigidbodyComponent.h"
 #include "../Components/SpriteComponent.h"
 #include "../Components/TransformComponent.h"
+#include "../Components/HealthComponent.h"
 #include "../ECS/Entity.h"
 #include "../Logger/Logger.h"
 #include "../Systems/AnimationSystem.h"
@@ -136,6 +137,7 @@ void Game::LoadLevel(const int level) {
   EntityManager::Get().AddComponent<KeyboardControlledComponent>(chopper, 200., 200., 200., 200.);
   EntityManager::Get().AddComponent<CameraFollowComponent>(chopper);
   EntityManager::Get().AddComponent<ProjectileEmitterComponent>(chopper, glm::vec2(100, 0));
+  EntityManager::Get().AddComponent<HealthComponent>(chopper, 100);
 
   // create radar
   Entity radar = EntityManager::Get().CreateEntity();
